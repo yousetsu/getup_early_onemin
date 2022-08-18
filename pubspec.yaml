@@ -29,6 +29,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_mobile_ads: ^2.0.1
+  provider: ^6.0.3
   flutter_localizations:
     sdk: flutter
 

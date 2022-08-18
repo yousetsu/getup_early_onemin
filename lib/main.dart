@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:getup_early_onemin/ad_state.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_picker/flutter_picker.dart';
@@ -140,7 +143,11 @@ Future<void> main() async {
     Recvport.sendPort,
     isolateName,
   );
+  //広告初期化
+  WidgetsFlutterBinding.ensureInitialized();
+  final initFuture = MobileAds.instance.initialize();
   runApp(new MyApp());
+
 }
 Future<void> _configureLocalTimeZone() async {
   if (kIsWeb || Platform.isLinux) {
@@ -154,6 +161,7 @@ Future<void> _configureLocalTimeZone() async {
 第メイン画面(MainScreen)
  -------------------------------------------------------------------*/
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -788,8 +796,7 @@ class _FirstScreenState extends State<FirstScreen> {
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('goalsleeptime', _goalsleeptime.toString());
           });
-        }
-        ;
+        };
         //目標就寝時刻の算出
         //目標睡眠時間 - 明日の起床時刻
         int sleeptime_hour = _goalsleeptime.hour;
@@ -863,6 +870,33 @@ class _SecondScreenState extends State<SecondScreen> {
   DateTime _goalsleeptime = DateTime.utc(0, 0, 0);
   DateTime _getuptime = DateTime.utc(0, 0, 0);
   int int_min_kankaku = 1;
+  // This widget is the root of your application.
+  //バナー広告初期化
+  final BannerAd myBanner = BannerAd(
+    //TEST ANDROID : ca-app-pub-3940256099942544/6300978111
+    //TEST IOS : ca-app-pub-3940256099942544/2934735716
+    adUnitId: Platform.isAndroid
+        ? 'ca-app-pub-3940256099942544/6300978111'
+        : 'ca-app-pub-3940256099942544/2934735716',
+    size: AdSize.banner,
+    request: AdRequest(),
+    listener: BannerAdListener(
+      onAdLoaded: (Ad ad) => print('バナー広告がロードされました'),
+      // Called when an ad request failed.
+      onAdFailedToLoad: (Ad ad, LoadAdError error) {
+        // Dispose the ad here to free resources.
+        ad.dispose();
+        print('バナー広告の読み込みが次の理由で失敗しました: $error');
+      },
+      // Called when an ad opens an overlay that covers the screen.
+      onAdOpened: (Ad ad) => print('バナー広告が開かれました'),
+      // Called when an ad removes an overlay that covers the screen.
+      onAdClosed: (Ad ad) => print('バナー広告が閉じられました'),
+      // Called when an impression occurs on the ad.
+      onAdImpression: (Ad ad) => print('Ad impression.'),
+    ),
+  );
+
   @override
   void initState() {
     super.initState();
@@ -870,6 +904,17 @@ class _SecondScreenState extends State<SecondScreen> {
   }
   @override
   Widget build(BuildContext context) {
+    //動画バナーロード
+    myBanner.load();
+
+    final AdWidget adWidget = AdWidget(ad: myBanner);
+
+    final Container adContainer = Container(
+      alignment: Alignment.center,
+      child: adWidget,
+      width: myBanner.size.width.toDouble(),
+      height: myBanner.size.height.toDouble(),
+    );
     return Scaffold(
       appBar: AppBar(title: Text('Setting'),),
       body: SingleChildScrollView(
@@ -923,7 +968,11 @@ class _SecondScreenState extends State<SecondScreen> {
                   style: styleB,
                 ),
               ]),
-        ],
+                //広告
+                adContainer,
+              ],
+
+
           ),
         ),
       bottomNavigationBar: BottomNavigationBar(

@@ -219,6 +219,7 @@ class _FirstScreenState extends State<FirstScreen> {
     super.initState();
     LoadPref();
     AndroidAlarmManager.initialize();
+
   }
   Future<void> _soundalarm() async {
     debugPrint('Alarm Start test.mp3');
@@ -870,7 +871,6 @@ class _SecondScreenState extends State<SecondScreen> {
   DateTime _goalsleeptime = DateTime.utc(0, 0, 0);
   DateTime _getuptime = DateTime.utc(0, 0, 0);
   int int_min_kankaku = 1;
-  // This widget is the root of your application.
   //バナー広告初期化
   final BannerAd myBanner = BannerAd(
     //TEST ANDROID : ca-app-pub-3940256099942544/6300978111
@@ -998,6 +998,8 @@ class _SecondScreenState extends State<SecondScreen> {
 /*------------------------------------------------------------------
 設定画面(SecondScreen) プライベートメソッド
  -------------------------------------------------------------------*/
+
+
   //目標睡眠時間保存
   void _savegoalsleeptimepref(DateTime value) async {
     //目標睡眠時間保存
@@ -1038,22 +1040,80 @@ class _SecondScreenState extends State<SecondScreen> {
 /*------------------------------------------------------------------
 3.履歴画面(Third Screen)
  -------------------------------------------------------------------*/
+//リワード広告失敗した時の試行回数
+const int maxFailedLoadAttempts = 3;
+
 class ThirdScreen extends StatefulWidget {
   ThirdScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
   _ThirdScreenState createState() => new _ThirdScreenState();
 }
+
 class _ThirdScreenState extends State<ThirdScreen> {
   List<Widget> _items = <Widget>[];
 
-  //List<Map> result = [];
+  //広告
+  RewardedAd? _rewardedAd;
+  int _numRewardedLoadAttempts = 0;
+
   @override
   void initState() {
     super.initState();
     getItems();
+    _createRewardedAd();
+
+  }
+  void _createRewardedAd() {
+    RewardedAd.load(
+        adUnitId: 'ca-app-pub-3940256099942544/5224354917',
+        request: AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: (RewardedAd ad) {
+            print('$ad loaded.');
+            _rewardedAd = ad;
+            _numRewardedLoadAttempts = 0;
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('RewardedAd failed to load: $error');
+            _rewardedAd = null;
+            _numRewardedLoadAttempts += 1;
+            if (_numRewardedLoadAttempts < maxFailedLoadAttempts) {
+              _createRewardedAd();
+            }
+          },
+        ));
+  }
+
+  void _showRewardedAd() {
+    if (_rewardedAd == null) {
+      print('Warning: attempt to show rewarded before loaded.');
+      return;
+    }
+    _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (RewardedAd ad) =>
+          print('ad onAdShowedFullScreenContent.'),
+      onAdDismissedFullScreenContent: (RewardedAd ad) {
+        print('$ad onAdDismissedFullScreenContent.');
+        ad.dispose();
+        _createRewardedAd();
+      },
+      onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
+        print('$ad onAdFailedToShowFullScreenContent: $error');
+        ad.dispose();
+        _createRewardedAd();
+      },
+
+    );
+    _rewardedAd!.setImmersiveMode(true);
+    _rewardedAd!.show(
+        onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
+          print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
+        });
+    _rewardedAd = null;
   }
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
        appBar: AppBar(
          title: Text('Get up history'),
@@ -1082,6 +1142,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
           if (index == 0) {
             Navigator.pushNamed(context, '/');
           } else if (index == 1) {
+            _showRewardedAd();
             Navigator.pushNamed(context, '/setting');
           }
         },
@@ -1146,4 +1207,5 @@ class _ThirdScreenState extends State<ThirdScreen> {
       _items = list;
     });
   }
+
 }

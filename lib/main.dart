@@ -1,10 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:getup_early_onemin/ad_state.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_picker/flutter_picker.dart';
@@ -14,26 +11,17 @@ import "package:intl/intl.dart";
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'dart:isolate';
 import 'dart:ui';
 import 'package:timezone/timezone.dart' as tz;
-
 import 'package:flutter/cupertino.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'dart:io';
-import 'package:video_player/video_player.dart';
-import 'package:audioplayers/audioplayers.dart';
-
 import 'package:fluttertoast/fluttertoast.dart';
-
-final AudioCache _player = AudioCache();
-late AudioPlayer _ap;
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
-
 /// Streams are created so that app can respond to notification-related events
 /// since the plugin is initialised in the `main` function
 final BehaviorSubject<ReceivedNotification> didReceiveLocalNotificationSubject =
@@ -52,13 +40,11 @@ class ReceivedNotification {
     required this.body,
     required this.payload,
   });
-
   final int id;
   final String? title;
   final String? body;
   final String? payload;
 }
-
 String? selectedNotificationPayload;
 
 final int helloAlarmID = 19820822;
@@ -66,18 +52,11 @@ const String cns_getupstatus_s = '1';
 const String cns_getupstatus_f = '0';
 const bool cns_alarm_on = true;
 const bool cns_alarm_off = false;
-
-/// The name associated with the UI isolate's [SendPort].
-/// UI isolate の[SendPort]に関連付けられた名前
-const String isolateName = 'isolate';
-
-/// A port used to communicate from a background isolate to the UI isolate.
-/// バックグラウンドisolateからUI isolate への通信に使用されるポート
-final ReceivePort Recvport = ReceivePort();
-
+bool flg_first_run = true;
+/*------------------------------------------------------------------
+初回起動
+ -------------------------------------------------------------------*/
 Future<void> main() async {
-  // Register the UI isolate's SendPort to allow for communication from the
-  // background isolate.
   WidgetsFlutterBinding.ensureInitialized();
   await _configureLocalTimeZone();
   final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb &&
@@ -91,44 +70,9 @@ Future<void> main() async {
   }
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-  /// Note: permissions aren't requested here just to demonstrate that can be
-  /// done later
-  final IOSInitializationSettings initializationSettingsIOS =
-      IOSInitializationSettings(
-          requestAlertPermission: false,
-          requestBadgePermission: false,
-          requestSoundPermission: false,
-          onDidReceiveLocalNotification: (
-            int id,
-            String? title,
-            String? body,
-            String? payload,
-          ) async {
-            didReceiveLocalNotificationSubject.add(
-              ReceivedNotification(
-                id: id,
-                title: title,
-                body: body,
-                payload: payload,
-              ),
-            );
-          });
-  const MacOSInitializationSettings initializationSettingsMacOS =
-      MacOSInitializationSettings(
-    requestAlertPermission: false,
-    requestBadgePermission: false,
-    requestSoundPermission: false,
-  );
-  final LinuxInitializationSettings initializationSettingsLinux =
-      LinuxInitializationSettings(
-    defaultActionName: 'Open notification',
-    defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
-  );
+
   final InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
-    iOS: initializationSettingsIOS,
-    macOS: initializationSettingsMacOS,
-    linux: initializationSettingsLinux,
   );
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,
       onSelectNotification: (String? payload) async {
@@ -138,15 +82,12 @@ Future<void> main() async {
     selectedNotificationPayload = payload;
     selectNotificationSubject.add(payload);
   });
-  //UI isolateのSendPortを登録して、バックグラウンドisolateからの通信を可能にします。
-  IsolateNameServer.registerPortWithName(
-    Recvport.sendPort,
-    isolateName,
-  );
   //広告初期化
   WidgetsFlutterBinding.ensureInitialized();
   final initFuture = MobileAds.instance.initialize();
   runApp(new MyApp());
+  //初回DB登録
+  _firstrun();
 
 }
 Future<void> _configureLocalTimeZone() async {
@@ -156,6 +97,14 @@ Future<void> _configureLocalTimeZone() async {
   tz.initializeTimeZones();
   final String? timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
   tz.setLocalLocation(tz.getLocation(timeZoneName!));
+}
+//初回起動分の処理
+Future<void> _firstrun() async{
+  String dbpath = await getDatabasesPath();
+  String path = p.join(dbpath, "rireki.db");
+  Database database = await openDatabase(path, version: 1,
+      onCreate: (Database db, int version) async {
+        await db.execute("CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)");});
 }
 /*------------------------------------------------------------------
 第メイン画面(MainScreen)
@@ -205,6 +154,7 @@ class _FirstScreenState extends State<FirstScreen> {
   bool alarm_flg = false;
   MaterialColor primaryColor = Colors.orange;
   String str_starstop = '開始';
+
   //現在日付
   late String strStartdate;
   final TextStyle styleA = TextStyle(
@@ -212,38 +162,13 @@ class _FirstScreenState extends State<FirstScreen> {
     color: Colors.white,
   );
   final TextStyle styleB = TextStyle(fontSize: 15.0, color: Colors.white);
-  late VideoPlayerController _controller;
   @override
   void initState() {
     _getuptime = DateTime.utc(0, 0, 0);
     super.initState();
-    LoadPref();
     AndroidAlarmManager.initialize();
-
+    LoadPref();
   }
-  Future<void> _soundalarm() async {
-    debugPrint('Alarm Start test.mp3');
-    //  final player = AudioCache();
-    // await player.play('test.mp3');
-    debugPrint('Alarm End test.mp3');
-//void soundalarm() {
-    //debugPrint('Alarm fired!');
-    //  FlutterRingtonePlayer.play(
-    //  android: AndroidSounds.notification,
-    //  // Android用のサウンド
-    //  ios: const IosSound(1023),
-    //  // iOS用のサウンド
-    //  looping: true,
-    //  // Androidのみ。ストップするまで繰り返す
-    //  asAlarm: true,
-    //  // Androidのみ。サイレントモードでも音を鳴らす
-    //  volume: 0.5, // Androidのみ。0.0〜1.0
-    //  );
-//FlutterRingtonePlayer.playAlarm();
-  }
-  // The background
-  // static SendPort? uiSendPort = Recvport.sendPort;
-  static SendPort? uiSendPort;
   stopTheSound() async {
     await flutterLocalNotificationsPlugin.cancel(helloAlarmID);
     await AndroidAlarmManager.oneShot(
@@ -255,9 +180,17 @@ class _FirstScreenState extends State<FirstScreen> {
   }
   // The callback for our alarm
   static Future<void> callsound_start() async {
-    debugPrint('Alarm fired!');
-    FlutterRingtonePlayer.playAlarm();
+ //  FlutterRingtonePlayer.playRingtone();
+  //  FlutterRingtonePlayer.playAlarm(asAlarm: true);
+      FlutterRingtonePlayer.play(
+          android: AndroidSounds.alarm,
+          fromAsset: "assets/alarm.mp3" ,
+          volume: 0.3,
+        looping: true,
+        asAlarm: true
+      );
   }
+
   //アラームのセット
   Future<void> alramset() async {
     DateTime _nowtime;
@@ -317,8 +250,8 @@ class _FirstScreenState extends State<FirstScreen> {
       _getupalarmtime = DateTime.parse(str_getuptime);
       _diffSecond = _getupalarmtime.difference(_nowtime).inSeconds;
     }
-    debugPrint('Alarm Set!');
     await AndroidAlarmManager.oneShot(
+    //await AndroidAlarmManager.periodic(
       Duration(seconds: _diffSecond),
       helloAlarmID,
       callsound_start,
@@ -329,8 +262,8 @@ class _FirstScreenState extends State<FirstScreen> {
     );
     await flutterLocalNotificationsPlugin.zonedSchedule(
         helloAlarmID,
-        'scheduled title',
-        'scheduled body',
+        'Baby steps early get up!',
+        'it\' s morning!',
         tz.TZDateTime.now(tz.local).add(Duration(seconds: _diffSecond)),
         const NotificationDetails(
             android: AndroidNotificationDetails(
@@ -480,15 +413,8 @@ class _FirstScreenState extends State<FirstScreen> {
                       ]),
                   ///GOAL GET UP TIME BUTTON
                   ElevatedButton(
-                    child: Text(
-                      DateFormat.Hm().format(_goalgetuptime),
-                      style: TextStyle(fontSize: 35),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.lightBlueAccent,
-                      onPrimary: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 80),
-                    ),
+                    child: Text(DateFormat.Hm().format(_goalgetuptime), style: TextStyle(fontSize: 35),),
+                    style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: EdgeInsets.symmetric(vertical: 8, horizontal: 80),),
                     onPressed: () async {
                       Picker(
                         adapter: DateTimePickerAdapter(
@@ -503,6 +429,9 @@ class _FirstScreenState extends State<FirstScreen> {
                                 LoadPref(),
                               });
                         },
+                        onSelect: (Picker picker, int index, List<int> selected){
+                          _goalgetuptime = DateTime.utc(0, 0, 0, selected[0], selected[1], 0);
+                        }
                       ).showModal(context);
                     },
                   ),
@@ -515,9 +444,7 @@ class _FirstScreenState extends State<FirstScreen> {
               Padding(padding: EdgeInsets.all(20),),
               Icon(Icons.calendar_month, color: Colors.red, size: 35),
               Padding(padding: EdgeInsets.all(10),),
-              //   Visibility(
-              //   visible: _goalvisible,
-              //  child: TextField(
+
                   new Container(
                     width: 50,
                   child: TextField(
@@ -529,10 +456,8 @@ class _FirstScreenState extends State<FirstScreen> {
                       color: Colors.white,
                       decoration: TextDecoration.none),
                 ),
-                // ),
-
               ),
-              Text('DAYS TO GO', style: styleB,),
+              Text('  DAYS TO GO', style: styleB,),
             ]),
             new Divider(color: Colors.white, thickness: 1.0,),
             ///Recommended bedtime
@@ -544,28 +469,15 @@ class _FirstScreenState extends State<FirstScreen> {
             Text('Recommended Bedtime', style: styleB,),
             ]),
             //ここに目標就寝時刻を表示
-            Text(DateFormat.Hm().format(_goal_bedin_time),
-                style: const TextStyle(fontSize: 35.0, color: Colors.white)),
+            Text(DateFormat.Hm().format(_goal_bedin_time), style: const TextStyle(fontSize: 35.0, color: Colors.white)),
             Padding(padding: EdgeInsets.all(5.0),),
             new Divider(color: Colors.white, thickness: 1.0,),
             //開始ボタン
             SizedBox(
-              width: 200, //横幅
-              height: 70, //高さ
+              width: 200, height: 70,
               child: ElevatedButton(
-                child: Text(
-                  str_starstop,
-                  style: const TextStyle(
-                    fontSize: 35.0,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  primary: primaryColor,
-                  onPrimary: Colors.white,
-                  shape: const StadiumBorder(),
-                  elevation: 16,
-                ),
+                child: Text( str_starstop, style: const TextStyle(fontSize: 35.0, color: Colors.white,),),
+                style: ElevatedButton.styleFrom(primary: primaryColor, onPrimary: Colors.white, shape: const StadiumBorder(), elevation: 16,),
                 onPressed: buttonPressed,
               ),
             ),
@@ -667,13 +579,14 @@ class _FirstScreenState extends State<FirstScreen> {
   //早起き成功
   void resultSuccess(String value) {
     //履歴テーブルに成功情報をセット
-    saveData(cns_getupstatus_s);
+    String? str_getuptime;
+    str_getuptime = _getuptime.toIso8601String();
+    saveData(cns_getupstatus_s,str_getuptime);
     //明日の起床時間を算出・セット
     //本日の目標就寝時刻を算出
     setState(() {
       _getuptime = _getuptime.subtract(Duration(minutes: int_min_kankaku));
-      _goal_bedin_time =
-          _goal_bedin_time.subtract(Duration(minutes: int_min_kankaku));
+      _goal_bedin_time = _goal_bedin_time.subtract(Duration(minutes: int_min_kankaku));
     });
     _savegetuptimepref(_getuptime);
     //目標までの日数を-1
@@ -683,14 +596,18 @@ class _FirstScreenState extends State<FirstScreen> {
       prefs.setInt('goal_day', _goal_day);
     });
     //目標までの日数を画面に表示
-    _controllergoalday.text =
-        "Until the goal is achieved" + _goal_day.toString() + "days";
+    _controllergoalday.text = "Until the goal is achieved" + _goal_day.toString() + "days";
   }
   //早起き失敗
   void resultFailure(String value) {
+    String? str_getuptime;
+    str_getuptime = _getuptime.toIso8601String();
     //履歴テーブルに失敗情報をセット
-    saveData(cns_getupstatus_f);
+    saveData(cns_getupstatus_f,str_getuptime);
   }
+  /*------------------------------------------------------------------
+第一画面SAVE(FirstScreen)
+ -------------------------------------------------------------------*/
   //明日の起床時間をセット
   void _savegetuptimepref(DateTime value) async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
@@ -714,14 +631,25 @@ class _FirstScreenState extends State<FirstScreen> {
       prefs.setString('goalgetuptime', value.toString());
     });
   }
+  //初回起動フラグの保存
+  // Future<void> _saveflgfirstrunpref(bool value) async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   await  prefs.setBool('flgfirstrun', true);
+  // }
+  void _saveflgfirstrunpref(bool value) async {
+    SharedPreferences.getInstance().then((SharedPreferences prefs) {
+      prefs.setBool('flgfirstrun', value);
+    });
+  }
   /*------------------------------------------------------------------
 第一画面ロード(FirstScreen)
  -------------------------------------------------------------------*/
   void LoadPref() async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       setState(() {
+
         //アラームボタン
-        alarm_flg = prefs.getBool('Alarmonoff') ?? false;
+        alarm_flg = prefs.getBool('Alarmonoff') ?? true;
         primaryColor = alarm_flg ? Colors.orange : Colors.blue;
         str_starstop = alarm_flg ? 'START' : 'STOP';
 
@@ -757,7 +685,7 @@ class _FirstScreenState extends State<FirstScreen> {
         if (str_goalgetuptime != null && str_goalgetuptime != "") {
           _goalgetuptime = DateTime.parse(str_goalgetuptime);
         } else {
-          _goalgetuptime = DateTime.utc(0, 0, 0, 6, 0);
+          _goalgetuptime = DateTime.utc(0, 0, 0, 5, 30);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('goalgetuptime', _goalgetuptime.toString());
           });
@@ -793,7 +721,7 @@ class _FirstScreenState extends State<FirstScreen> {
         if (str_goalsleep != null && str_goalsleep != "") {
           _goalsleeptime = DateTime.parse(str_goalsleep);
         } else {
-          _goalsleeptime = DateTime.utc(0, 0, 0, 6, 0);
+          _goalsleeptime = DateTime.utc(0, 0, 0, 7, 30);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('goalsleeptime', _goalsleeptime.toString());
           });
@@ -821,32 +749,20 @@ class _FirstScreenState extends State<FirstScreen> {
       });
     });
   }
-  void saveData(String status) async {
+  void saveData(String status ,String str_getuptime) async {
     String dbPath = await getDatabasesPath();
     String path = p.join(dbPath, 'rireki.db');
-    // String? strStartdate;
-    // SharedPreferences.getInstance().then(
-    //         (SharedPreferences prefs) {
-    //           strStartdate = prefs.getString('startdate');
-    //         }
-    // );
-    String? str_getuptime;
-    // str_goalgetuptime = DateFormat('hh:mm').format(_goalgetuptime);
-    str_getuptime = _getuptime.toIso8601String();
-    String query =
-        'INSERT INTO rireki(date,getupstatus, goalgetuptime,realgetuptime,goalbedintime,realbedintime,sleeptime) values("$strStartdate","$status","$str_getuptime",null,null,null,null)';
-    // Database database = await openDatabase(path, version: 1,
-    //     onCreate: (Database db, int version) async {
-    //       await db.execute(
-    //           "DROP TABLE mydata;"
-    //       );
-    //     }
-    // );
+
+    String strnowdate = DateTime.now().toIso8601String();
+
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
       await db.execute(
           "CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)");
     });
+
+    String query =
+        'INSERT INTO rireki(date,getupstatus, goalgetuptime,realgetuptime,goalbedintime,realbedintime,sleeptime) values("$strnowdate","$status","$str_getuptime",null,null,null,null)';
 
     await database.transaction((txn) async {
       int id = await txn.rawInsert(query);
@@ -857,7 +773,6 @@ class _FirstScreenState extends State<FirstScreen> {
 
 class SecondScreen extends StatefulWidget {
   SecondScreen({Key? key}) : super(key: key); //コンストラクタ
-
   @override
   _SecondScreenState createState() => new _SecondScreenState();
 }
@@ -873,11 +788,8 @@ class _SecondScreenState extends State<SecondScreen> {
   int int_min_kankaku = 1;
   //バナー広告初期化
   final BannerAd myBanner = BannerAd(
-    //TEST ANDROID : ca-app-pub-3940256099942544/6300978111
-    //TEST IOS : ca-app-pub-3940256099942544/2934735716
-    adUnitId: Platform.isAndroid
-        ? 'ca-app-pub-3940256099942544/6300978111'
-        : 'ca-app-pub-3940256099942544/2934735716',
+    adUnitId : 'ca-app-pub-3940256099942544/6300978111',//test
+   // adUnitId:'ca-app-pub-8759269867859745/2745032231', //本番
     size: AdSize.banner,
     request: AdRequest(),
     listener: BannerAdListener(
@@ -906,9 +818,7 @@ class _SecondScreenState extends State<SecondScreen> {
   Widget build(BuildContext context) {
     //動画バナーロード
     myBanner.load();
-
     final AdWidget adWidget = AdWidget(ad: myBanner);
-
     final Container adContainer = Container(
       alignment: Alignment.center,
       child: adWidget,
@@ -949,9 +859,9 @@ class _SecondScreenState extends State<SecondScreen> {
                       title: Text("Select Time"),
                       onConfirm: (Picker picker, List value) {
                         setState(() => {
-                              _goalsleeptime =
-                                  DateTime.utc(0, 0, 0, value[0], value[1], 0),
+                              _goalsleeptime = DateTime.utc(0, 0, 0, value[0], value[1], 0),
                               _savegoalsleeptimepref(_goalsleeptime),
+
                             });
                       },
                     ).showModal(context);
@@ -963,16 +873,16 @@ class _SecondScreenState extends State<SecondScreen> {
             mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
           Padding(padding: EdgeInsets.all(20),),
           Icon(Icons.music_note, color: Colors.white, size: 30),
-                Text(
-                  'Alarm Sound',
-                  style: styleB,
-                ),
+                Text('Alarm Sound', style: styleB,),
+
               ]),
+                Text('Sorry! currently not selectable', style: styleB,),
+                Text('Scheduled for future release', style: styleB,),
+                Padding(padding: EdgeInsets.all(20),),
+                new Divider(color: Colors.white, thickness: 1.0,),
                 //広告
                 adContainer,
               ],
-
-
           ),
         ),
       bottomNavigationBar: BottomNavigationBar(
@@ -998,8 +908,6 @@ class _SecondScreenState extends State<SecondScreen> {
 /*------------------------------------------------------------------
 設定画面(SecondScreen) プライベートメソッド
  -------------------------------------------------------------------*/
-
-
   //目標睡眠時間保存
   void _savegoalsleeptimepref(DateTime value) async {
     //目標睡眠時間保存
@@ -1020,8 +928,7 @@ class _SecondScreenState extends State<SecondScreen> {
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('getuptime', _getuptime.toString());
           });
-        }
-        ;
+        };
         //目標睡眠時間の取得
         String? str_goalsleep = prefs.getString('goalsleeptime');
         if (str_goalsleep != null && str_goalsleep != "") {
@@ -1031,8 +938,7 @@ class _SecondScreenState extends State<SecondScreen> {
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('goalsleeptime', _goalsleeptime.toString());
           });
-        }
-        ;
+        };
       });
     });
   }
@@ -1051,21 +957,21 @@ class ThirdScreen extends StatefulWidget {
 
 class _ThirdScreenState extends State<ThirdScreen> {
   List<Widget> _items = <Widget>[];
-
   //広告
   RewardedAd? _rewardedAd;
   int _numRewardedLoadAttempts = 0;
-
+  int _cnt_reward = 0;
   @override
   void initState() {
     super.initState();
     getItems();
     _createRewardedAd();
-
+    _LoadPref_reward_cnt();
   }
   void _createRewardedAd() {
     RewardedAd.load(
-        adUnitId: 'ca-app-pub-3940256099942544/5224354917',
+      //  adUnitId: 'ca-app-pub-8759269867859745/8740337207', //product
+        adUnitId: 'ca-app-pub-3940256099942544/5224354917', //test
         request: AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (RewardedAd ad) {
@@ -1085,39 +991,57 @@ class _ThirdScreenState extends State<ThirdScreen> {
   }
 
   void _showRewardedAd() {
-    if (_rewardedAd == null) {
-      print('Warning: attempt to show rewarded before loaded.');
-      return;
+    _cnt_reward = _cnt_reward + 1;
+    _save_reward_cnt(_cnt_reward);
+    if (_cnt_reward >= 5) {
+      _save_reward_cnt(0);
+      if (_rewardedAd == null) {
+        print('Warning: attempt to show rewarded before loaded.');
+        return;
+      }
+      _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdShowedFullScreenContent: (RewardedAd ad) =>
+            print('ad onAdShowedFullScreenContent.'),
+        onAdDismissedFullScreenContent: (RewardedAd ad) {
+          print('$ad onAdDismissedFullScreenContent.');
+          ad.dispose();
+          _createRewardedAd();
+        },
+        onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
+          print('$ad onAdFailedToShowFullScreenContent: $error');
+          ad.dispose();
+          _createRewardedAd();
+        },
+      );
+      _rewardedAd!.setImmersiveMode(true);
+      _rewardedAd!.show(
+          onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
+            print('$ad with reward $RewardItem(${reward.amount}, ${reward
+                .type})');
+          });
+      _rewardedAd = null;
     }
-    _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (RewardedAd ad) =>
-          print('ad onAdShowedFullScreenContent.'),
-      onAdDismissedFullScreenContent: (RewardedAd ad) {
-        print('$ad onAdDismissedFullScreenContent.');
-        ad.dispose();
-        _createRewardedAd();
-      },
-      onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
-        print('$ad onAdFailedToShowFullScreenContent: $error');
-        ad.dispose();
-        _createRewardedAd();
-      },
+  }
+  void _LoadPref_reward_cnt() async {
+    SharedPreferences.getInstance().then((SharedPreferences prefs) {
+      setState(() {
+        //リワードカウントの取得
+        _cnt_reward =  prefs.getInt('rewardcnt') ?? 0;
+      });
+    });
+    _cnt_reward = 0;
+  }
+  //リワードカウント保存
+  void _save_reward_cnt(int value) async {
 
-    );
-    _rewardedAd!.setImmersiveMode(true);
-    _rewardedAd!.show(
-        onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-          print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
-        });
-    _rewardedAd = null;
+    SharedPreferences.getInstance().then((SharedPreferences prefs) {
+      prefs.setInt('rewardcnt', value);
+    });
   }
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-       appBar: AppBar(
-         title: Text('Get up history'),
-       ),
+       appBar: AppBar(title: Text('Get up history'),),
       body: new Column(
         children: <Widget>[
           _listHeader(),
@@ -1141,9 +1065,10 @@ class _ThirdScreenState extends State<ThirdScreen> {
         onTap: (int index) {
           if (index == 0) {
             Navigator.pushNamed(context, '/');
-          } else if (index == 1) {
             _showRewardedAd();
+          } else if (index == 1) {
             Navigator.pushNamed(context, '/setting');
+            _showRewardedAd();
           }
         },
       ),
@@ -1165,17 +1090,15 @@ class _ThirdScreenState extends State<ThirdScreen> {
                       style: new TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold))),
               new Expanded(
-                  child: new Text("TIME",
+                  child: new Text("TARGET TIME",
                       style: new TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold))),
         ])));
   }
-
   void getItems() async {
     List<Widget> list = <Widget>[];
     String dbpath = await getDatabasesPath();
     String path = p.join(dbpath, "rireki.db");
-
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
       await db.execute(
@@ -1183,10 +1106,8 @@ class _ThirdScreenState extends State<ThirdScreen> {
     });
     List<Map> result = await database
         .rawQuery('SELECT id,date,getupstatus,goalgetuptime FROM rireki order by id desc');
-    // List<Map> result = await database.rawQuery('SELECT * FROM rireki');
     for (Map item in result) {
       list.add(ListTile(
-
         tileColor: (item['getupstatus'].toString() == cns_getupstatus_s)
             ? Colors.green
             : Colors.grey,
@@ -1197,8 +1118,8 @@ class _ThirdScreenState extends State<ThirdScreen> {
         //item['id'].toString() +
             '      ' +
             DateFormat('yyyy/MM/dd').format(DateTime.parse(item['date'])) +
-            '         ' +
-            DateFormat('HH:MM').format(DateTime.parse(item['goalgetuptime'])),
+            '               ' +
+            DateFormat('HH:mm').format(DateTime.parse(item['goalgetuptime'])),
         style: new TextStyle(color: Colors.white,fontSize: 20),),
         dense: true,
       ));

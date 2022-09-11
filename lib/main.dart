@@ -20,6 +20,13 @@ import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import 'package:just_audio/just_audio.dart';
+import 'package:audio_session/audio_session.dart';
+//TODO
+late AudioPlayer _player;
+bool _changeAudioSource = false;
+//TODO
+
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 /// Streams are created so that app can respond to notification-related events
@@ -164,11 +171,36 @@ class _FirstScreenState extends State<FirstScreen> {
   final TextStyle styleB = TextStyle(fontSize: 15.0, color: Colors.white);
   @override
   void initState() {
-    _getuptime = DateTime.utc(0, 0, 0);
+    _getuptime = DateTime.now();
+        //DateTime.utc(0, 0, 0);
+    DateTime testdate = DateTime.now();
+    DateTime  datetime = DateTime.parse(_getuptime.toIso8601String());
+    DateTime  datetime3 = DateTime.parse(_getuptime.toString());
+    DateTime  datetime4 = _getuptime;
+  //  DateTime  datetimetest2 = DateFormat('yyyy-MM-DD HH:mm:ss.SSSSSS').parse(_getuptime.toIso8601String());
+
     super.initState();
     AndroidAlarmManager.initialize();
+    //TODO
+    _setupSession();
+    //TODO
     LoadPref();
   }
+  //TODO
+  Future<void> _setupSession() async {
+    _player = AudioPlayer();
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration.speech());
+    await _loadAudioFile();
+  }
+  Future<void> _loadAudioFile() async {
+    try {
+      await _player.setAsset('assets/alarm.mp3'); // アセット(ローカル)のファイル
+    } catch(e) {
+      print(e);
+    }
+  }
+  //TODO
   stopTheSound() async {
     await flutterLocalNotificationsPlugin.cancel(helloAlarmID);
     await AndroidAlarmManager.oneShot(
@@ -176,19 +208,29 @@ class _FirstScreenState extends State<FirstScreen> {
         exact: true, wakeup: true, alarmClock: true, allowWhileIdle: true);
   }
   static stopSound() async {
-    await FlutterRingtonePlayer.stop();
+    //TODO
+    //await FlutterRingtonePlayer.stop();
+    _player.stop();
+    //TODO
+
   }
   // The callback for our alarm
   static Future<void> callsound_start() async {
- //  FlutterRingtonePlayer.playRingtone();
-  //  FlutterRingtonePlayer.playAlarm(asAlarm: true);
-      FlutterRingtonePlayer.play(
-          android: AndroidSounds.alarm,
-          fromAsset: "assets/alarm.mp3" ,
-          volume: 0.3,
-        looping: true,
-        asAlarm: true
-      );
+//TODO
+//     FlutterRingtonePlayer.play(
+//         android: AndroidSounds.alarm,
+//         fromAsset: "assets/alarm.mp3" ,
+//         volume: 0.3,
+//         looping: true,
+//         asAlarm: true
+//     );
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration.music());
+    await _player.setLoopMode(LoopMode.all);
+    await _player.setAsset('assets/alarm.mp3');
+    await _player.play();
+
+    //TODO
   }
 
   //アラームのセット
@@ -344,12 +386,12 @@ class _FirstScreenState extends State<FirstScreen> {
                       Picker(
                         adapter: DateTimePickerAdapter(
                             type: PickerDateTimeType.kHM,
-                            value: _getuptime,
+                            value: DateTime.parse(_getuptime.toString()),
                             customColumnType: [3, 4]),
                         title: Text("Select Time"),
                         onConfirm: (Picker picker, List value) {
                           setState(() => {
-                                _getuptime = DateTime.utc(0, 0, 0, value[0], value[1], 0),
+                                _getuptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
                                 _savegetuptimepref(_getuptime),
                                 LoadPref(),
                               });
@@ -424,13 +466,13 @@ class _FirstScreenState extends State<FirstScreen> {
                         title: Text("Select Time"),
                         onConfirm: (Picker picker, List value) {
                           setState(() => {
-                                _goalgetuptime = DateTime.utc(0, 0, 0, value[0], value[1], 0),
+                                _goalgetuptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
                                 _savegoalgetuptimepref(_goalgetuptime),
                                 LoadPref(),
                               });
                         },
                         onSelect: (Picker picker, int index, List<int> selected){
-                          _goalgetuptime = DateTime.utc(0, 0, 0, selected[0], selected[1], 0);
+                          _goalgetuptime = DateTime.utc(2016, 5, 1, selected[0], selected[1], 0);
                         }
                       ).showModal(context);
                     },
@@ -631,11 +673,6 @@ class _FirstScreenState extends State<FirstScreen> {
       prefs.setString('goalgetuptime', value.toString());
     });
   }
-  //初回起動フラグの保存
-  // Future<void> _saveflgfirstrunpref(bool value) async {
-  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   await  prefs.setBool('flgfirstrun', true);
-  // }
   void _saveflgfirstrunpref(bool value) async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       prefs.setBool('flgfirstrun', value);
@@ -685,7 +722,7 @@ class _FirstScreenState extends State<FirstScreen> {
         if (str_goalgetuptime != null && str_goalgetuptime != "") {
           _goalgetuptime = DateTime.parse(str_goalgetuptime);
         } else {
-          _goalgetuptime = DateTime.utc(0, 0, 0, 5, 30);
+          _goalgetuptime = DateTime.utc(2016, 5, 1, 5, 30);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('goalgetuptime', _goalgetuptime.toString());
           });
@@ -721,7 +758,7 @@ class _FirstScreenState extends State<FirstScreen> {
         if (str_goalsleep != null && str_goalsleep != "") {
           _goalsleeptime = DateTime.parse(str_goalsleep);
         } else {
-          _goalsleeptime = DateTime.utc(0, 0, 0, 7, 30);
+          _goalsleeptime = DateTime.utc(2016, 5, 1, 7, 30);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('goalsleeptime', _goalsleeptime.toString());
           });
@@ -760,7 +797,6 @@ class _FirstScreenState extends State<FirstScreen> {
       await db.execute(
           "CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)");
     });
-
     String query =
         'INSERT INTO rireki(date,getupstatus, goalgetuptime,realgetuptime,goalbedintime,realbedintime,sleeptime) values("$strnowdate","$status","$str_getuptime",null,null,null,null)';
 
@@ -859,7 +895,7 @@ class _SecondScreenState extends State<SecondScreen> {
                       title: Text("Select Time"),
                       onConfirm: (Picker picker, List value) {
                         setState(() => {
-                              _goalsleeptime = DateTime.utc(0, 0, 0, value[0], value[1], 0),
+                              _goalsleeptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
                               _savegoalsleeptimepref(_goalsleeptime),
 
                             });
@@ -924,7 +960,7 @@ class _SecondScreenState extends State<SecondScreen> {
         if (str_getuptime != null && str_getuptime != "") {
           _getuptime = DateTime.parse(str_getuptime);
         } else {
-          _getuptime = DateTime.utc(0, 0, 0, 6, 0);
+          _getuptime = DateTime.utc(2016, 5, 1, 6, 0);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('getuptime', _getuptime.toString());
           });
@@ -934,7 +970,7 @@ class _SecondScreenState extends State<SecondScreen> {
         if (str_goalsleep != null && str_goalsleep != "") {
           _goalsleeptime = DateTime.parse(str_goalsleep);
         } else {
-          _goalsleeptime = DateTime.utc(0, 0, 0, 6, 0);
+          _goalsleeptime = DateTime.utc(2016, 5, 1, 6, 0);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('goalsleeptime', _goalsleeptime.toString());
           });
@@ -989,7 +1025,6 @@ class _ThirdScreenState extends State<ThirdScreen> {
           },
         ));
   }
-
   void _showRewardedAd() {
     _cnt_reward = _cnt_reward + 1;
     _save_reward_cnt(_cnt_reward);

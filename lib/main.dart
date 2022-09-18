@@ -22,6 +22,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
+
+import 'package:file_picker/file_picker.dart';
 //TODO
 late AudioPlayer _player;
 bool _changeAudioSource = false;
@@ -224,7 +226,16 @@ class _FirstScreenState extends State<FirstScreen> {
 //         looping: true,
 //         asAlarm: true
 //     );
+    //TODO
+    _player = AudioPlayer();
     final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration.speech());
+    try {
+      await _player.setAsset('assets/alarm.mp3'); // アセット(ローカル)のファイル
+    } catch(e) {
+      print(e);
+    }
+    //TODO
     await session.configure(AudioSessionConfiguration.music());
     await _player.setLoopMode(LoopMode.all);
     await _player.setAsset('assets/alarm.mp3');

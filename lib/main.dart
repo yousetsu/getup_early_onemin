@@ -24,9 +24,11 @@ import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 //TODO
 late AudioPlayer _player;
 bool _changeAudioSource = false;
+String str_se_path = "";
 //TODO
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -62,6 +64,9 @@ const String cns_getupstatus_f = '0';
 const bool cns_alarm_on = true;
 const bool cns_alarm_off = false;
 bool flg_first_run = true;
+
+
+
 /*------------------------------------------------------------------
 初回起動
  -------------------------------------------------------------------*/
@@ -185,6 +190,7 @@ class _FirstScreenState extends State<FirstScreen> {
     AndroidAlarmManager.initialize();
     //TODO
     _setupSession();
+    fileload();
     //TODO
     LoadPref();
   }
@@ -226,7 +232,6 @@ class _FirstScreenState extends State<FirstScreen> {
 //         looping: true,
 //         asAlarm: true
 //     );
-    //TODO
     _player = AudioPlayer();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
@@ -235,7 +240,6 @@ class _FirstScreenState extends State<FirstScreen> {
     } catch(e) {
       print(e);
     }
-    //TODO
     await session.configure(AudioSessionConfiguration.music());
     await _player.setLoopMode(LoopMode.all);
     await _player.setAsset('assets/alarm.mp3');
@@ -692,6 +696,25 @@ class _FirstScreenState extends State<FirstScreen> {
   /*------------------------------------------------------------------
 第一画面ロード(FirstScreen)
  -------------------------------------------------------------------*/
+  //TODO　
+  void fileload() async {
+    FilePickerResult? result = null;
+    result = await FilePicker.platform.pickFiles(withData: true,withReadStream:true);
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      // _player = AudioPlayer();
+      // final session = await AudioSession.instance;
+      // await session.configure(AudioSessionConfiguration.speech());
+      try {
+        str_se_path = file.toString();
+        //await _player.setFilePath(file.toString());
+      } catch(e) {
+        print(e);
+      }
+    } else {
+    }
+  }
+  //TODO
   void LoadPref() async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       setState(() {
@@ -860,9 +883,12 @@ class _SecondScreenState extends State<SecondScreen> {
   void initState() {
     super.initState();
     LoadPref_second();
+
   }
   @override
   Widget build(BuildContext context) {
+    //ファイル選択起動
+    filepicker();
     //動画バナーロード
     myBanner.load();
     final AdWidget adWidget = AdWidget(ad: myBanner);
@@ -955,6 +981,44 @@ class _SecondScreenState extends State<SecondScreen> {
 /*------------------------------------------------------------------
 設定画面(SecondScreen) プライベートメソッド
  -------------------------------------------------------------------*/
+  //TODO　ファイルピッカー
+  void filepicker() async {
+
+    // final directory = await getApplicationDocumentsDirectory();
+    //
+    // String str_a = directory.path.toString();
+
+    // String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    //
+    // if (selectedDirectory == null) {
+    //   // User canceled the picker
+    // }
+
+    // FilePickerResult? result = await FilePicker.platform.pickFiles(withData: true,withReadStream:true);
+    // if (result != null) {
+    //   File file = File(result.files.single.path!);
+    //   // _player = AudioPlayer();
+    //   // final session = await AudioSession.instance;
+    //   // await session.configure(AudioSessionConfiguration.speech());
+    //   try {
+    //     //await _player.setFilePath(file.toString());
+    //   } catch(e) {
+    //     print(e);
+    //   }
+
+
+     _player = AudioPlayer();
+     final session = await AudioSession.instance;
+      await session.configure(AudioSessionConfiguration.music());
+      await _player.setLoopMode(LoopMode.all);
+      await _player.setFilePath(str_se_path);
+      await _player.play();
+    // } else {
+    //   // User canceled the picker
+    // }
+
+  }
+  //TODO
   //目標睡眠時間保存
   void _savegoalsleeptimepref(DateTime value) async {
     //目標睡眠時間保存

@@ -24,10 +24,9 @@ import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:path_provider/path_provider.dart';
+
 //TODO
 late AudioPlayer _player;
-bool _changeAudioSource = false;
 String str_se_path = "";
 //TODO
 
@@ -64,8 +63,6 @@ const String cns_getupstatus_f = '0';
 const bool cns_alarm_on = true;
 const bool cns_alarm_off = false;
 bool flg_first_run = true;
-
-
 
 /*------------------------------------------------------------------
 初回起動
@@ -113,12 +110,32 @@ Future<void> _configureLocalTimeZone() async {
   tz.setLocalLocation(tz.getLocation(timeZoneName!));
 }
 //初回起動分の処理
-Future<void> _firstrun() async{
+Future<void> _firstrun() async {
   String dbpath = await getDatabasesPath();
+  //履歴テーブル作成
   String path = p.join(dbpath, "rireki.db");
   Database database = await openDatabase(path, version: 1,
       onCreate: (Database db, int version) async {
-        await db.execute("CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)");});
+        await db.execute(
+            "CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)");
+      });
+  //設定テーブル作成
+  path = p.join(dbpath, "setting.db");
+  database = await openDatabase(path, version: 1,
+      onCreate: (Database db, int version) async {
+        await db.execute(
+            "CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY,mpath TEXT)");
+      });
+  List<Map> result = await database
+      .rawQuery('SELECT mpath FROM setting where id =1');
+
+  if (result.isEmpty){
+    //設定テーブル初期値設定
+    String query = 'INSERT INTO setting(id ,mpath)values(1,"mpath/test")';
+    await database.transaction((txn) async {
+      int id = await txn.rawInsert(query);
+    });
+  }
 }
 /*------------------------------------------------------------------
 第メイン画面(MainScreen)
@@ -184,31 +201,10 @@ class _FirstScreenState extends State<FirstScreen> {
     DateTime  datetime = DateTime.parse(_getuptime.toIso8601String());
     DateTime  datetime3 = DateTime.parse(_getuptime.toString());
     DateTime  datetime4 = _getuptime;
-  //  DateTime  datetimetest2 = DateFormat('yyyy-MM-DD HH:mm:ss.SSSSSS').parse(_getuptime.toIso8601String());
-
     super.initState();
     AndroidAlarmManager.initialize();
-    //TODO
-    _setupSession();
-    fileload();
-    //TODO
     LoadPref();
   }
-  //TODO
-  Future<void> _setupSession() async {
-    _player = AudioPlayer();
-    final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration.speech());
-    await _loadAudioFile();
-  }
-  Future<void> _loadAudioFile() async {
-    try {
-      await _player.setAsset('assets/alarm.mp3'); // アセット(ローカル)のファイル
-    } catch(e) {
-      print(e);
-    }
-  }
-  //TODO
   stopTheSound() async {
     await flutterLocalNotificationsPlugin.cancel(helloAlarmID);
     await AndroidAlarmManager.oneShot(
@@ -232,22 +228,42 @@ class _FirstScreenState extends State<FirstScreen> {
 //         looping: true,
 //         asAlarm: true
 //     );
+    String? str_se_path = null;
+    str_se_path = await LoadMusicPath();
+   // print('load:'+ str_se_path!);
+
     _player = AudioPlayer();
     final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration.speech());
-    try {
-      await _player.setAsset('assets/alarm.mp3'); // アセット(ローカル)のファイル
-    } catch(e) {
-      print(e);
-    }
     await session.configure(AudioSessionConfiguration.music());
     await _player.setLoopMode(LoopMode.all);
-    await _player.setAsset('assets/alarm.mp3');
+    print("load:" + str_se_path.toString());
+    if(str_se_path != null) {
+      await _player.setFilePath(str_se_path);
+    }else{
+      str_se_path ='';
+      await _player.setFilePath(str_se_path);
+    }
     await _player.play();
-
+   // await _player.setAsset('assets/alarm.mp3');
+  //  await _player.play();
     //TODO
   }
-
+  static Future<String?> LoadMusicPath() async{
+    String? str_music_path = "";
+    String dbpath =  await getDatabasesPath();
+    String path = p.join(dbpath, "setting.db");
+    Database database = await openDatabase(path, version: 1,
+        onCreate: (Database db, int version) async {
+          await db.execute(
+              "CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY,mpath TEXT)");
+        });
+    List<Map> result = await database
+        .rawQuery('select mpath from setting  where id = 1');
+    for (Map item in result) {
+      str_music_path = item['mpath'].toString();
+    }
+    return str_music_path;
+  }
   //アラームのセット
   Future<void> alramset() async {
     DateTime _nowtime;
@@ -257,39 +273,39 @@ class _FirstScreenState extends State<FirstScreen> {
     int _minute;
     int _second;
     int _diffSecond = 0;
-    int _hour_now;
-    int _minute_now;
-    int _second_now;
-    String str_nowtime;
-    String str_getuptime;
-    String _str_date;
-    String _str_date_plusone;
-    _str_date = '2022-01-16 ';
-    _str_date_plusone = '2022-01-17 ';
+    int HourNow;
+    int MinuteNow;
+    int SecondNow;
+    String strNowtime;
+    String strGetuptime;
+    String StrDate;
+    String StrDatePlusone;
+    StrDate = '2022-01-16 ';
+    StrDatePlusone = '2022-01-17 ';
     //現在時間の算出
-    _hour_now = DateTime.now().hour;
-    _minute_now = DateTime.now().minute;
-    _second_now = DateTime.now().second;
-    str_nowtime = _str_date +
-        _hour_now.toString().padLeft(2, '0') +
+    HourNow = DateTime.now().hour;
+    MinuteNow = DateTime.now().minute;
+    SecondNow = DateTime.now().second;
+    strNowtime = StrDate +
+        HourNow.toString().padLeft(2, '0') +
         ':' +
-        _minute_now.toString().padLeft(2, '0') +
+        MinuteNow.toString().padLeft(2, '0') +
         ':' +
-        _second_now.toString().padLeft(2, '0') +
+        SecondNow.toString().padLeft(2, '0') +
         '.0';
-    _nowtime = DateTime.parse(str_nowtime);
+    _nowtime = DateTime.parse(strNowtime);
     //起床したい時刻の算出
     _hour = _getuptime.hour;
     _minute = _getuptime.minute;
     _second = _getuptime.second;
-    str_getuptime = _str_date +
+    strGetuptime = StrDate +
         _hour.toString().padLeft(2, '0') +
         ':' +
         _minute.toString().padLeft(2, '0') +
         ':' +
         _second.toString().padLeft(2, '0') +
         '.0';
-    _getupalarmtime = DateTime.parse(str_getuptime);
+    _getupalarmtime = DateTime.parse(strGetuptime);
     //起床したい時刻 - 現時刻
     _diffSecond = _getupalarmtime.difference(_nowtime).inSeconds;
     if (_diffSecond >= 0) {
@@ -297,14 +313,14 @@ class _FirstScreenState extends State<FirstScreen> {
       //(ほとんどありえないケース)
     } else {
       //現時刻が起床日前日になっている場合(ほとんどこのケース)
-      str_getuptime = _str_date_plusone +
+      strGetuptime = StrDatePlusone +
           _hour.toString().padLeft(2, '0') +
           ':' +
           _minute.toString().padLeft(2, '0') +
           ':' +
           _second.toString().padLeft(2, '0') +
           '.0';
-      _getupalarmtime = DateTime.parse(str_getuptime);
+      _getupalarmtime = DateTime.parse(strGetuptime);
       _diffSecond = _getupalarmtime.difference(_nowtime).inSeconds;
     }
     await AndroidAlarmManager.oneShot(
@@ -332,20 +348,20 @@ class _FirstScreenState extends State<FirstScreen> {
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime);
-    int int_hour;
-    int int_hour_amari_sec;
-    int int_minute;
-    int int_second;
-    int_hour = (_diffSecond / 3600).floor();
-    int_hour_amari_sec = (_diffSecond % 3600).floor();
-    int_minute = (int_hour_amari_sec / 60).floor();
-    int_second = (int_hour_amari_sec % 60).floor();
+    int intHour;
+    int intHourAmariSec;
+    int intMinute;
+    int intSecond;
+    intHour = (_diffSecond / 3600).floor();
+    intHourAmariSec = (_diffSecond % 3600).floor();
+    intMinute = (intHourAmariSec / 60).floor();
+    intSecond = (intHourAmariSec % 60).floor();
     Fluttertoast.showToast(
-        msg: int_hour.toString() +
+        msg: intHour.toString() +
             "hours" +
-            int_minute.toString() +
+            intMinute.toString() +
             "minutes" +
-            int_second.toString() +
+            intSecond.toString() +
             "alarm set");
   }
   Widget build(BuildContext context) {
@@ -501,7 +517,6 @@ class _FirstScreenState extends State<FirstScreen> {
               Padding(padding: EdgeInsets.all(20),),
               Icon(Icons.calendar_month, color: Colors.red, size: 35),
               Padding(padding: EdgeInsets.all(10),),
-
                   new Container(
                     width: 50,
                   child: TextField(
@@ -636,9 +651,9 @@ class _FirstScreenState extends State<FirstScreen> {
   //早起き成功
   void resultSuccess(String value) {
     //履歴テーブルに成功情報をセット
-    String? str_getuptime;
-    str_getuptime = _getuptime.toIso8601String();
-    saveData(cns_getupstatus_s,str_getuptime);
+    String? strGetuptime;
+    strGetuptime = _getuptime.toIso8601String();
+    saveData(cns_getupstatus_s,strGetuptime);
     //明日の起床時間を算出・セット
     //本日の目標就寝時刻を算出
     setState(() {
@@ -657,10 +672,10 @@ class _FirstScreenState extends State<FirstScreen> {
   }
   //早起き失敗
   void resultFailure(String value) {
-    String? str_getuptime;
-    str_getuptime = _getuptime.toIso8601String();
+    String? strGetuptime;
+    strGetuptime = _getuptime.toIso8601String();
     //履歴テーブルに失敗情報をセット
-    saveData(cns_getupstatus_f,str_getuptime);
+    saveData(cns_getupstatus_f,strGetuptime);
   }
   /*------------------------------------------------------------------
 第一画面SAVE(FirstScreen)
@@ -696,38 +711,17 @@ class _FirstScreenState extends State<FirstScreen> {
   /*------------------------------------------------------------------
 第一画面ロード(FirstScreen)
  -------------------------------------------------------------------*/
-  //TODO　
-  void fileload() async {
-    FilePickerResult? result = null;
-    result = await FilePicker.platform.pickFiles(withData: true,withReadStream:true);
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      // _player = AudioPlayer();
-      // final session = await AudioSession.instance;
-      // await session.configure(AudioSessionConfiguration.speech());
-      try {
-        str_se_path = file.toString();
-        //await _player.setFilePath(file.toString());
-      } catch(e) {
-        print(e);
-      }
-    } else {
-    }
-  }
-  //TODO
   void LoadPref() async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       setState(() {
-
         //アラームボタン
         alarm_flg = prefs.getBool('Alarmonoff') ?? true;
         primaryColor = alarm_flg ? Colors.orange : Colors.blue;
         str_starstop = alarm_flg ? 'START' : 'STOP';
-
         //起床時間の取得
-        String? str_getuptime = prefs.getString('getuptime');
-        if (str_getuptime != null && str_getuptime != "") {
-          _getuptime = DateTime.parse(str_getuptime);
+        String? strGetuptime = prefs.getString('getuptime');
+        if (strGetuptime != null && strGetuptime != "") {
+          _getuptime = DateTime.parse(strGetuptime);
         } else {
           _getuptime = DateTime.utc(0, 0, 0, 6, 0);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
@@ -752,16 +746,15 @@ class _FirstScreenState extends State<FirstScreen> {
         int _diffmin;
         //最終目標の起床時間を取得
         //明日の起床時刻の取得
-        String? str_goalgetuptime = prefs.getString('goalgetuptime');
-        if (str_goalgetuptime != null && str_goalgetuptime != "") {
-          _goalgetuptime = DateTime.parse(str_goalgetuptime);
+        String? strGoalgetuptime = prefs.getString('goalgetuptime');
+        if (strGoalgetuptime != null && strGoalgetuptime != "") {
+          _goalgetuptime = DateTime.parse(strGoalgetuptime);
         } else {
           _goalgetuptime = DateTime.utc(2016, 5, 1, 5, 30);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('goalgetuptime', _goalgetuptime.toString());
           });
-        }
-        ;
+        };
         if (_goalgetuptime != DateTime.utc(0, 0, 0, 0, 0)) {
           //目標起床時刻がセットされていれば目標までの日数を表示する
           _goalvisible = true;
@@ -788,9 +781,9 @@ class _FirstScreenState extends State<FirstScreen> {
         }
         //目標睡眠時間の取得
         DateTime _goalsleeptime;
-        String? str_goalsleep = prefs.getString('goalsleeptime');
-        if (str_goalsleep != null && str_goalsleep != "") {
-          _goalsleeptime = DateTime.parse(str_goalsleep);
+        String? strGoalsleep = prefs.getString('goalsleeptime');
+        if (strGoalsleep != null && strGoalsleep != "") {
+          _goalsleeptime = DateTime.parse(strGoalsleep);
         } else {
           _goalsleeptime = DateTime.utc(2016, 5, 1, 7, 30);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
@@ -799,10 +792,10 @@ class _FirstScreenState extends State<FirstScreen> {
         };
         //目標就寝時刻の算出
         //目標睡眠時間 - 明日の起床時刻
-        int sleeptime_hour = _goalsleeptime.hour;
-        int sleeptime_min = _goalsleeptime.minute;
+        int sleeptimeHour = _goalsleeptime.hour;
+        int sleeptimeMin = _goalsleeptime.minute;
         _goal_bedin_time = _getuptime
-            .subtract(Duration(hours: sleeptime_hour, minutes: sleeptime_min));
+            .subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
         //_goalsleeptime.minute
         //間隔の取得
         if (prefs.getString('kankaku') != null &&
@@ -815,12 +808,11 @@ class _FirstScreenState extends State<FirstScreen> {
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('kankaku', "1");
           });
-        }
-        ;
+        };
       });
     });
   }
-  void saveData(String status ,String str_getuptime) async {
+  void saveData(String status ,String strGetuptime) async {
     String dbPath = await getDatabasesPath();
     String path = p.join(dbPath, 'rireki.db');
 
@@ -832,7 +824,7 @@ class _FirstScreenState extends State<FirstScreen> {
           "CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)");
     });
     String query =
-        'INSERT INTO rireki(date,getupstatus, goalgetuptime,realgetuptime,goalbedintime,realbedintime,sleeptime) values("$strnowdate","$status","$str_getuptime",null,null,null,null)';
+        'INSERT INTO rireki(date,getupstatus, goalgetuptime,realgetuptime,goalbedintime,realbedintime,sleeptime) values("$strnowdate","$status","$strGetuptime",null,null,null,null)';
 
     await database.transaction((txn) async {
       int id = await txn.rawInsert(query);
@@ -840,13 +832,11 @@ class _FirstScreenState extends State<FirstScreen> {
     });
   }
 }
-
 class SecondScreen extends StatefulWidget {
   SecondScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
   _SecondScreenState createState() => new _SecondScreenState();
 }
-
 /*------------------------------------------------------------------
 設定画面(SecondScreen)
  -------------------------------------------------------------------*/
@@ -878,17 +868,13 @@ class _SecondScreenState extends State<SecondScreen> {
       onAdImpression: (Ad ad) => print('Ad impression.'),
     ),
   );
-
   @override
   void initState() {
     super.initState();
     LoadPref_second();
-
   }
   @override
   Widget build(BuildContext context) {
-    //ファイル選択起動
-    filepicker();
     //動画バナーロード
     myBanner.load();
     final AdWidget adWidget = AdWidget(ad: myBanner);
@@ -914,15 +900,8 @@ class _SecondScreenState extends State<SecondScreen> {
       ],
     ),
                 ElevatedButton(
-                  child: Text(
-                    DateFormat.Hm().format(_goalsleeptime),
-                    style: TextStyle(fontSize: 40),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.lightBlueAccent,
-                    onPrimary: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 80),
-                  ),
+                  child: Text(DateFormat.Hm().format(_goalsleeptime), style: TextStyle(fontSize: 40),),
+                  style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: EdgeInsets.symmetric(vertical: 10, horizontal: 80),),
                   onPressed: () async {
                     Picker(
                       adapter: DateTimePickerAdapter(
@@ -934,7 +913,6 @@ class _SecondScreenState extends State<SecondScreen> {
                         setState(() => {
                               _goalsleeptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
                               _savegoalsleeptimepref(_goalsleeptime),
-
                             });
                       },
                     ).showModal(context);
@@ -947,11 +925,15 @@ class _SecondScreenState extends State<SecondScreen> {
           Padding(padding: EdgeInsets.all(20),),
           Icon(Icons.music_note, color: Colors.white, size: 30),
                 Text('Alarm Sound', style: styleB,),
-
               ]),
-                Text('Sorry! currently not selectable', style: styleB,),
-                Text('Scheduled for future release', style: styleB,),
-                Padding(padding: EdgeInsets.all(20),),
+                ElevatedButton(
+                  child: Text('Alarm Select', style: TextStyle(fontSize: 30),),
+                  style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: EdgeInsets.symmetric(vertical: 10, horizontal: 80),),
+                  onPressed: () async {
+                    alarm_file_select();
+                  },
+                ),
+
                 new Divider(color: Colors.white, thickness: 1.0,),
                 //広告
                 adContainer,
@@ -981,44 +963,42 @@ class _SecondScreenState extends State<SecondScreen> {
 /*------------------------------------------------------------------
 設定画面(SecondScreen) プライベートメソッド
  -------------------------------------------------------------------*/
-  //TODO　ファイルピッカー
-  void filepicker() async {
-
-    // final directory = await getApplicationDocumentsDirectory();
-    //
-    // String str_a = directory.path.toString();
-
-    // String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-    //
-    // if (selectedDirectory == null) {
-    //   // User canceled the picker
-    // }
-
-    // FilePickerResult? result = await FilePicker.platform.pickFiles(withData: true,withReadStream:true);
-    // if (result != null) {
-    //   File file = File(result.files.single.path!);
-    //   // _player = AudioPlayer();
-    //   // final session = await AudioSession.instance;
-    //   // await session.configure(AudioSessionConfiguration.speech());
-    //   try {
-    //     //await _player.setFilePath(file.toString());
-    //   } catch(e) {
-    //     print(e);
-    //   }
-
-
-     _player = AudioPlayer();
-     final session = await AudioSession.instance;
-      await session.configure(AudioSessionConfiguration.music());
-      await _player.setLoopMode(LoopMode.all);
-      await _player.setFilePath(str_se_path);
-      await _player.play();
-    // } else {
-    //   // User canceled the picker
-    // }
-
+  //アラームファイル選択
+  void alarm_file_select() async {
+    //ファイル選択
+    FilePickerResult? result = null;
+    result = await FilePicker.platform.pickFiles(
+        dialogTitle: 'Please Play Music File'
+        , type: FileType.audio
+    );
+    if (result != null) {
+      try {
+        File file = File(result.files.single.path!);
+       //   file.copy(file.toString());
+        str_se_path = file.path.toString();
+        _saveAlarmMusic(str_se_path);
+      } catch (e) {
+        print(e);
+      }
+    }
   }
-  //TODO
+  //音楽ファイルパスを保存
+  void _saveAlarmMusic(String value) async {
+    String dbPath = await getDatabasesPath();
+    String path = p.join(dbPath, 'setting.db');
+    Database database = await openDatabase(path, version: 1,
+        onCreate: (Database db, int version) async {
+          await db.execute(
+              "CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY,mpath TEXT)");
+        });
+    String query =
+        'UPDATE setting set mpath = "$value" where id = 1 ';
+
+    await database.transaction((txn) async {
+      int id = await txn.rawInsert(query);
+      //   print("insert: $id");
+    });
+  }
   //目標睡眠時間保存
   void _savegoalsleeptimepref(DateTime value) async {
     //目標睡眠時間保存
@@ -1026,14 +1006,13 @@ class _SecondScreenState extends State<SecondScreen> {
       prefs.setString('goalsleeptime', value.toString());
     });
   }
-
   void LoadPref_second() async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       setState(() {
         //起床時間の取得
-        String? str_getuptime = prefs.getString('getuptime');
-        if (str_getuptime != null && str_getuptime != "") {
-          _getuptime = DateTime.parse(str_getuptime);
+        String? strGetuptime = prefs.getString('getuptime');
+        if (strGetuptime != null && strGetuptime != "") {
+          _getuptime = DateTime.parse(strGetuptime);
         } else {
           _getuptime = DateTime.utc(2016, 5, 1, 6, 0);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
@@ -1041,9 +1020,9 @@ class _SecondScreenState extends State<SecondScreen> {
           });
         };
         //目標睡眠時間の取得
-        String? str_goalsleep = prefs.getString('goalsleeptime');
-        if (str_goalsleep != null && str_goalsleep != "") {
-          _goalsleeptime = DateTime.parse(str_goalsleep);
+        String? strGoalsleep = prefs.getString('goalsleeptime');
+        if (strGoalsleep != null && strGoalsleep != "") {
+          _goalsleeptime = DateTime.parse(strGoalsleep);
         } else {
           _goalsleeptime = DateTime.utc(2016, 5, 1, 6, 0);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {

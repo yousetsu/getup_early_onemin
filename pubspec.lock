@@ -221,13 +221,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.7"
-  flutter_ringtone_player:
-    dependency: "direct dev"
-    description:
-      name: flutter_ringtone_player
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.2.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter

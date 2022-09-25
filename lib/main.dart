@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -9,7 +8,6 @@ import 'package:flutter_picker/flutter_picker.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 import "package:intl/intl.dart";
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:ui';

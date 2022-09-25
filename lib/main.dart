@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -25,10 +26,8 @@ import 'package:audio_session/audio_session.dart';
 
 import 'package:file_picker/file_picker.dart';
 
-//TODO
 late AudioPlayer _player;
 String str_se_path = "";
-//TODO
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -63,7 +62,9 @@ const String cns_getupstatus_f = '0';
 const bool cns_alarm_on = true;
 const bool cns_alarm_off = false;
 bool flg_first_run = true;
-
+const String str_cnt_sql_create_setting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY,mpath TEXT)";
+const String strCnsRadDefSound = "DefaultSound";
+const String strCnsRadSelMusic = "SelectMusic";
 /*------------------------------------------------------------------
 初回起動
  -------------------------------------------------------------------*/
@@ -112,6 +113,7 @@ Future<void> _configureLocalTimeZone() async {
 //初回起動分の処理
 Future<void> _firstrun() async {
   String dbpath = await getDatabasesPath();
+
   //履歴テーブル作成
   String path = p.join(dbpath, "rireki.db");
   Database database = await openDatabase(path, version: 1,
@@ -124,7 +126,7 @@ Future<void> _firstrun() async {
   database = await openDatabase(path, version: 1,
       onCreate: (Database db, int version) async {
         await db.execute(
-            "CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY,mpath TEXT)");
+            str_cnt_sql_create_setting);
       });
   List<Map> result = await database
       .rawQuery('SELECT mpath FROM setting where id =1');
@@ -212,41 +214,25 @@ class _FirstScreenState extends State<FirstScreen> {
         exact: true, wakeup: true, alarmClock: true, allowWhileIdle: true);
   }
   static stopSound() async {
-    //TODO
-    //await FlutterRingtonePlayer.stop();
     _player.stop();
-    //TODO
-
   }
   // The callback for our alarm
   static Future<void> callsound_start() async {
-//TODO
-//     FlutterRingtonePlayer.play(
-//         android: AndroidSounds.alarm,
-//         fromAsset: "assets/alarm.mp3" ,
-//         volume: 0.3,
-//         looping: true,
-//         asAlarm: true
-//     );
+
     String? str_se_path = null;
     str_se_path = await LoadMusicPath();
-   // print('load:'+ str_se_path!);
 
     _player = AudioPlayer();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.music());
     await _player.setLoopMode(LoopMode.all);
     print("load:" + str_se_path.toString());
-    if(str_se_path != null) {
+    if(str_se_path != null && str_se_path != "") {
       await _player.setFilePath(str_se_path);
     }else{
-      str_se_path ='';
-      await _player.setFilePath(str_se_path);
+      await _player.setAsset('assets/alarm.mp3');
     }
     await _player.play();
-   // await _player.setAsset('assets/alarm.mp3');
-  //  await _player.play();
-    //TODO
   }
   static Future<String?> LoadMusicPath() async{
     String? str_music_path = "";
@@ -254,9 +240,7 @@ class _FirstScreenState extends State<FirstScreen> {
     String path = p.join(dbpath, "setting.db");
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-          await db.execute(
-              "CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY,mpath TEXT)");
-        });
+          await db.execute(str_cnt_sql_create_setting);});
     List<Map> result = await database
         .rawQuery('select mpath from setting  where id = 1');
     for (Map item in result) {
@@ -842,10 +826,15 @@ class SecondScreen extends StatefulWidget {
  -------------------------------------------------------------------*/
 class _SecondScreenState extends State<SecondScreen> {
   List<Widget> _items = <Widget>[];
+  final TextStyle styleA = TextStyle(fontSize: 20.0, color: Colors.white);
   final TextStyle styleB = TextStyle(fontSize: 15.0, color: Colors.white);
   DateTime _goalsleeptime = DateTime.utc(0, 0, 0);
   DateTime _getuptime = DateTime.utc(0, 0, 0);
   int int_min_kankaku = 1;
+  String? strSelectMusicName = "";
+  bool isEnable = false;
+  String? _type = '';
+
   //バナー広告初期化
   final BannerAd myBanner = BannerAd(
     adUnitId : 'ca-app-pub-3940256099942544/6300978111',//test
@@ -872,7 +861,9 @@ class _SecondScreenState extends State<SecondScreen> {
   void initState() {
     super.initState();
     LoadPref_second();
+    LoadMusicName();
   }
+
   @override
   Widget build(BuildContext context) {
     //動画バナーロード
@@ -887,18 +878,17 @@ class _SecondScreenState extends State<SecondScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('Setting'),),
       body: SingleChildScrollView(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Padding(padding: EdgeInsets.all(20.0),),
-                new Divider(color: Colors.white, thickness: 1.0,),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-          Padding(padding: EdgeInsets.all(20),),
-          Icon(Icons.schedule, color: Colors.white, size: 30),
-          Text('SLEEP TIME', style: styleB,),
-      ],
-    ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Padding(padding: EdgeInsets.all(20.0),),
+            new Divider(color: Colors.white, thickness: 1.0,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+                Padding(padding: EdgeInsets.all(20),),
+              Icon(Icons.schedule, color: Colors.white, size: 30),
+              Text('SLEEP TIME', style: styleA,),
+            ],),
                 ElevatedButton(
                   child: Text(DateFormat.Hm().format(_goalsleeptime), style: TextStyle(fontSize: 40),),
                   style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: EdgeInsets.symmetric(vertical: 10, horizontal: 80),),
@@ -919,22 +909,57 @@ class _SecondScreenState extends State<SecondScreen> {
                   },
                 ),
                 Padding(padding: EdgeInsets.all(20.0),),
-                new Divider(color: Colors.white, thickness: 1.0,),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-          Padding(padding: EdgeInsets.all(20),),
-          Icon(Icons.music_note, color: Colors.white, size: 30),
-                Text('Alarm Sound', style: styleB,),
-              ]),
-                ElevatedButton(
-                  child: Text('Alarm Select', style: TextStyle(fontSize: 30),),
-                  style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: EdgeInsets.symmetric(vertical: 10, horizontal: 80),),
-                  onPressed: () async {
-                    alarm_file_select();
-                  },
-                ),
 
                 new Divider(color: Colors.white, thickness: 1.0,),
+                //アラーム選択ボタン
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+                      Padding(padding: EdgeInsets.all(20),),
+                  Icon(Icons.music_note, color: Colors.white, size: 30),
+                  Text('Alarm Sound', style: styleA,),
+                ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+              Padding(padding: EdgeInsets.only(left:50.0),),
+            new Radio(
+              activeColor: Colors.blue,
+              value: strCnsRadDefSound,
+              groupValue: _type,
+              onChanged: _handleRadio,
+              autofocus:true,
+            ),
+              Text('Defualt Alarm Sound', style: styleB,),
+            ]),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+        Padding(padding: EdgeInsets.only(left:50.0),),
+            new Radio(
+              activeColor: Colors.blue,
+              value: strCnsRadSelMusic,
+              groupValue: _type,
+              onChanged: _handleRadio,
+            ),
+        Text('Alarm Select', style: styleB,),
+      ]),
+                ElevatedButton(
+                  child: Text('Alarm Select', style: TextStyle(fontSize: 25),),
+                  style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: EdgeInsets.symmetric(vertical: 10, horizontal: 60),),
+                   onPressed: !isEnable ? null :() async {alarmfileselect();},
+                ),
+               Padding(padding: EdgeInsets.all(10.0),),
+                //アラーム選択ファイル
+            Row(
+                mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+                  Padding(padding: EdgeInsets.only(left:60.0),),
+              Text('Select Music：', style: styleA),
+            ]),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+              Padding(padding: EdgeInsets.only(left:90.0),),
+              Text('$strSelectMusicName', style: styleB),
+            ]),
+                new Divider(color: Colors.white, thickness: 1.0,),
+
                 //広告
                 adContainer,
               ],
@@ -963,8 +988,46 @@ class _SecondScreenState extends State<SecondScreen> {
 /*------------------------------------------------------------------
 設定画面(SecondScreen) プライベートメソッド
  -------------------------------------------------------------------*/
+  void LoadMusicName() async{
+    String? str_music_path = "";
+    String? str_music_name = "";
+    String dbpath =  await getDatabasesPath();
+    String path = p.join(dbpath, "setting.db");
+    Database database = await openDatabase(path, version: 1,
+        onCreate: (Database db, int version) async {
+          await db.execute(str_cnt_sql_create_setting);});
+    List<Map> result = await database
+        .rawQuery('select mpath from setting  where id = 1');
+    for (Map item in result) {
+      str_music_path = item['mpath'].toString();
+    }
+    final reg = RegExp('[^//]+\$');
+    if(str_music_path != null && str_music_path !="") {
+      str_music_name = reg.firstMatch(str_music_path)?.group(0);
+      _handleRadio(strCnsRadSelMusic);
+    }else{
+      _handleRadio(strCnsRadDefSound);
+    }
+    setState(() {
+      strSelectMusicName = str_music_name;
+    });
+  }
+  //ラジオボタン選択時の処理
+  void _handleRadio(String? e){
+    setState(() {
+      _type = e;
+      if(e == strCnsRadDefSound){
+        isEnable = false;
+        _saveAlarmMusic("");
+        strSelectMusicName = "Defualt Sound";
+      }else{
+        isEnable = true;
+      }
+    });
+  }
   //アラームファイル選択
-  void alarm_file_select() async {
+  void alarmfileselect() async {
+    String srtName ="";
     //ファイル選択
     FilePickerResult? result = null;
     result = await FilePicker.platform.pickFiles(
@@ -974,8 +1037,11 @@ class _SecondScreenState extends State<SecondScreen> {
     if (result != null) {
       try {
         File file = File(result.files.single.path!);
-       //   file.copy(file.toString());
         str_se_path = file.path.toString();
+        srtName = result.files.single.name;
+        setState(() {
+          strSelectMusicName = srtName;
+        });
         _saveAlarmMusic(str_se_path);
       } catch (e) {
         print(e);
@@ -988,12 +1054,9 @@ class _SecondScreenState extends State<SecondScreen> {
     String path = p.join(dbPath, 'setting.db');
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-          await db.execute(
-              "CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY,mpath TEXT)");
+          await db.execute(str_cnt_sql_create_setting);
         });
-    String query =
-        'UPDATE setting set mpath = "$value" where id = 1 ';
-
+    String query = 'UPDATE setting set mpath = "$value" where id = 1 ';
     await database.transaction((txn) async {
       int id = await txn.rawInsert(query);
       //   print("insert: $id");

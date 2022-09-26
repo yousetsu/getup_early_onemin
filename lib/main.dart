@@ -63,6 +63,14 @@ bool flg_first_run = true;
 const String str_cnt_sql_create_setting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY,mpath TEXT)";
 const String strCnsRadDefSound = "DefaultSound";
 const String strCnsRadSelMusic = "SelectMusic";
+
+//広告ID
+//test
+const String strCnsBannerID = 'ca-app-pub-3940256099942544/6300978111'; //Banner
+const String strCnsRewardID = 'ca-app-pub-3940256099942544/5224354917'; //Reward
+//本番
+//const String strCnsBannerID = 'ca-app-pub-8759269867859745/2745032231'; //banner
+//const String strCnsRewardID = 'ca-app-pub-8759269867859745/8740337207'; //Reward
 /*------------------------------------------------------------------
 初回起動
  -------------------------------------------------------------------*/
@@ -835,8 +843,7 @@ class _SecondScreenState extends State<SecondScreen> {
 
   //バナー広告初期化
   final BannerAd myBanner = BannerAd(
-    adUnitId : 'ca-app-pub-3940256099942544/6300978111',//test
-   // adUnitId:'ca-app-pub-8759269867859745/2745032231', //本番
+    adUnitId : strCnsBannerID,
     size: AdSize.banner,
     request: AdRequest(),
     listener: BannerAdListener(
@@ -1121,8 +1128,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
   }
   void _createRewardedAd() {
     RewardedAd.load(
-     //   adUnitId: 'ca-app-pub-8759269867859745/8740337207', //product
-        adUnitId: 'ca-app-pub-3940256099942544/5224354917', //test
+        adUnitId: strCnsRewardID,
         request: AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (RewardedAd ad) {

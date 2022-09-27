@@ -241,7 +241,7 @@ class _FirstScreenState extends State<FirstScreen> {
     await _player.play();
   }
   static Future<String?> LoadMusicPath() async{
-    String? str_music_path = "";
+    String? strMusicPath = "";
     String dbpath =  await getDatabasesPath();
     String path = p.join(dbpath, "setting.db");
     Database database = await openDatabase(path, version: 1,
@@ -250,72 +250,52 @@ class _FirstScreenState extends State<FirstScreen> {
     List<Map> result = await database
         .rawQuery('select mpath from setting  where id = 1');
     for (Map item in result) {
-      str_music_path = item['mpath'].toString();
+      strMusicPath = item['mpath'].toString();
     }
-    return str_music_path;
+    return strMusicPath;
   }
   //アラームのセット
   Future<void> alramset() async {
-    DateTime _nowtime;
-    DateTime _getupalarmtime;
-    //int _diffmin = 0;
-    int _hour;
-    int _minute;
-    int _second;
-    int _diffSecond = 0;
-    int HourNow;
-    int MinuteNow;
-    int SecondNow;
+    DateTime nowtime;
+    DateTime getupalarmtime;
+    int hour;
+    int minute;
+    int second;
+    int diffSecond = 0;
+    int hourNow;
+    int minuteNow;
+    int secondNow;
     String strNowtime;
     String strGetuptime;
-    String StrDate;
-    String StrDatePlusone;
-    StrDate = '2022-01-16 ';
-    StrDatePlusone = '2022-01-17 ';
+    String strDate;
+    String strDatePlusone;
+    strDate = '2022-01-16 ';
+    strDatePlusone = '2022-01-17 ';
     //現在時間の算出
-    HourNow = DateTime.now().hour;
-    MinuteNow = DateTime.now().minute;
-    SecondNow = DateTime.now().second;
-    strNowtime = StrDate +
-        HourNow.toString().padLeft(2, '0') +
-        ':' +
-        MinuteNow.toString().padLeft(2, '0') +
-        ':' +
-        SecondNow.toString().padLeft(2, '0') +
-        '.0';
-    _nowtime = DateTime.parse(strNowtime);
+    hourNow = DateTime.now().hour;
+    minuteNow = DateTime.now().minute;
+    secondNow = DateTime.now().second;
+    strNowtime = '$strDate${hourNow.toString().padLeft(2, '0')}:${minuteNow.toString().padLeft(2, '0')}:${secondNow.toString().padLeft(2, '0')}.0';
+    nowtime = DateTime.parse(strNowtime);
     //起床したい時刻の算出
-    _hour = _getuptime.hour;
-    _minute = _getuptime.minute;
-    _second = _getuptime.second;
-    strGetuptime = StrDate +
-        _hour.toString().padLeft(2, '0') +
-        ':' +
-        _minute.toString().padLeft(2, '0') +
-        ':' +
-        _second.toString().padLeft(2, '0') +
-        '.0';
-    _getupalarmtime = DateTime.parse(strGetuptime);
+    hour = _getuptime.hour;
+    minute = _getuptime.minute;
+    second = _getuptime.second;
+    strGetuptime = '$strDate${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}:${second.toString().padLeft(2, '0')}.0';
+    getupalarmtime = DateTime.parse(strGetuptime);
     //起床したい時刻 - 現時刻
-    _diffSecond = _getupalarmtime.difference(_nowtime).inSeconds;
-    if (_diffSecond >= 0) {
+    diffSecond = getupalarmtime.difference(nowtime).inSeconds;
+    if (diffSecond >= 0) {
       //現時刻が起床日当日になっている場合はそのままでOK
       //(ほとんどありえないケース)
     } else {
       //現時刻が起床日前日になっている場合(ほとんどこのケース)
-      strGetuptime = StrDatePlusone +
-          _hour.toString().padLeft(2, '0') +
-          ':' +
-          _minute.toString().padLeft(2, '0') +
-          ':' +
-          _second.toString().padLeft(2, '0') +
-          '.0';
-      _getupalarmtime = DateTime.parse(strGetuptime);
-      _diffSecond = _getupalarmtime.difference(_nowtime).inSeconds;
+      strGetuptime = '$strDatePlusone${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2,'0')}:${second.toString().padLeft(2, '0')}.0';
+      getupalarmtime = DateTime.parse(strGetuptime);
+      diffSecond = getupalarmtime.difference(nowtime).inSeconds;
     }
     await AndroidAlarmManager.oneShot(
-    //await AndroidAlarmManager.periodic(
-      Duration(seconds: _diffSecond),
+      Duration(seconds: diffSecond),
       helloAlarmID,
       callsound_start,
       alarmClock: true,
@@ -327,7 +307,7 @@ class _FirstScreenState extends State<FirstScreen> {
         helloAlarmID,
         'Baby steps early get up!',
         'it\' s morning!',
-        tz.TZDateTime.now(tz.local).add(Duration(seconds: _diffSecond)),
+        tz.TZDateTime.now(tz.local).add(Duration(seconds: diffSecond)),
         const NotificationDetails(
             android: AndroidNotificationDetails(
                 'full screen channel id', 'full screen channel name',
@@ -342,8 +322,8 @@ class _FirstScreenState extends State<FirstScreen> {
     int intHourAmariSec;
     int intMinute;
     int intSecond;
-    intHour = (_diffSecond / 3600).floor();
-    intHourAmariSec = (_diffSecond % 3600).floor();
+    intHour = (diffSecond / 3600).floor();
+    intHourAmariSec = (diffSecond % 3600).floor();
     intMinute = (intHourAmariSec / 60).floor();
     intSecond = (intHourAmariSec % 60).floor();
     Fluttertoast.showToast(

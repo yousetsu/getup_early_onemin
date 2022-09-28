@@ -188,7 +188,7 @@ class _FirstScreenState extends State<FirstScreen> {
   DateTime _getuptime = DateTime.utc(0, 0, 0);
   DateTime _goalgetuptime = DateTime.utc(0, 0, 0);
   DateTime _goal_bedin_time = DateTime.utc(0, 0, 0);
-  int int_min_kankaku = 1;
+  int intMinKankaku = 1;
   int _goal_day = 0;
   bool alarm_flg = false;
   MaterialColor primaryColor = Colors.orange;
@@ -196,10 +196,7 @@ class _FirstScreenState extends State<FirstScreen> {
 
   //現在日付
   late String strStartdate;
-  final TextStyle styleA = TextStyle(
-    fontSize: 28.0,
-    color: Colors.white,
-  );
+  final TextStyle styleA = TextStyle(fontSize: 28.0, color: Colors.white,);
   final TextStyle styleB = TextStyle(fontSize: 15.0, color: Colors.white);
   @override
   void initState() {
@@ -211,7 +208,7 @@ class _FirstScreenState extends State<FirstScreen> {
     DateTime  datetime4 = _getuptime;
     super.initState();
     AndroidAlarmManager.initialize();
-    LoadPref();
+    loadPref();
   }
   stopTheSound() async {
     await flutterLocalNotificationsPlugin.cancel(helloAlarmID);
@@ -223,7 +220,7 @@ class _FirstScreenState extends State<FirstScreen> {
     _player.stop();
   }
   // The callback for our alarm
-  static Future<void> callsound_start() async {
+  static Future<void> callSoundStart() async {
 
     String? strSePath = null;
     strSePath = await LoadMusicPath();
@@ -296,7 +293,7 @@ class _FirstScreenState extends State<FirstScreen> {
     await AndroidAlarmManager.oneShot(
       Duration(seconds: diffSecond),
       helloAlarmID,
-      callsound_start,
+      callSoundStart,
       alarmClock: true,
       allowWhileIdle: true,
       exact: true,
@@ -325,8 +322,7 @@ class _FirstScreenState extends State<FirstScreen> {
     intHourAmariSec = (diffSecond % 3600).floor();
     intMinute = (intHourAmariSec / 60).floor();
     intSecond = (intHourAmariSec % 60).floor();
-    Fluttertoast.showToast(
-        msg: intHour.toString() + "hours" + intMinute.toString() + "minutes" + intSecond.toString() + "alarm set");
+    Fluttertoast.showToast(msg: '${intHour.toString()}hours${intMinute.toString()}minutes${intSecond.toString()}alarm set');
   }
   Widget build(BuildContext context) {
     return Scaffold(
@@ -385,7 +381,7 @@ class _FirstScreenState extends State<FirstScreen> {
                           setState(() => {
                                 _getuptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
                                 _savegetuptimepref(_getuptime),
-                                LoadPref(),
+                                loadPref(),
                               });
                         },
                       ).showModal(context);
@@ -460,7 +456,7 @@ class _FirstScreenState extends State<FirstScreen> {
                           setState(() => {
                                 _goalgetuptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
                                 _savegoalgetuptimepref(_goalgetuptime),
-                                LoadPref(),
+                                loadPref(),
                               });
                         },
                         onSelect: (Picker picker, int index, List<int> selected){
@@ -618,8 +614,8 @@ class _FirstScreenState extends State<FirstScreen> {
     //明日の起床時間を算出・セット
     //本日の目標就寝時刻を算出
     setState(() {
-      _getuptime = _getuptime.subtract(Duration(minutes: int_min_kankaku));
-      _goal_bedin_time = _goal_bedin_time.subtract(Duration(minutes: int_min_kankaku));
+      _getuptime = _getuptime.subtract(Duration(minutes: intMinKankaku));
+      _goal_bedin_time = _goal_bedin_time.subtract(Duration(minutes: intMinKankaku));
     });
     _savegetuptimepref(_getuptime);
     //目標までの日数を-1
@@ -629,7 +625,7 @@ class _FirstScreenState extends State<FirstScreen> {
       prefs.setInt('goal_day', _goal_day);
     });
     //目標までの日数を画面に表示
-    _controllergoalday.text = "Until the goal is achieved" + _goal_day.toString() + "days";
+    _controllergoalday.text = 'Until the goal is achieved"${_goal_day.toString()}days';
   }
   //早起き失敗
   void resultFailure(String value) {
@@ -672,7 +668,7 @@ class _FirstScreenState extends State<FirstScreen> {
   /*------------------------------------------------------------------
 第一画面ロード(FirstScreen)
  -------------------------------------------------------------------*/
-  void LoadPref() async {
+  void loadPref() async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       setState(() {
         //アラームボタン
@@ -692,7 +688,7 @@ class _FirstScreenState extends State<FirstScreen> {
         //間隔の取得
         if (prefs.getString('kankaku') != null &&
             prefs.getString('kankaku') != "") {
-          int_min_kankaku = int.parse(prefs.getString('kankaku')!);
+          intMinKankaku = int.parse(prefs.getString('kankaku')!);
           _controllerTitle.text = 'Get up early by ' +
               (prefs.getString('kankaku') ?? '') +
               ' minute every day';
@@ -722,9 +718,9 @@ class _FirstScreenState extends State<FirstScreen> {
           //目標起床時間 - 現在起床時間
           _diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
           //目標までの時間（分）を間隔（分）で割、目標までの日数を計算する
-          if (int_min_kankaku != 0) {
-            _goal_day = _diffmin ~/ int_min_kankaku;
-            amari = _diffmin % int_min_kankaku;
+          if (intMinKankaku != 0) {
+            _goal_day = _diffmin ~/ intMinKankaku;
+            amari = _diffmin % intMinKankaku;
             if (amari != 0) {
               _goal_day = _goal_day + 1;
             }
@@ -761,10 +757,10 @@ class _FirstScreenState extends State<FirstScreen> {
         //間隔の取得
         if (prefs.getString('kankaku') != null &&
             prefs.getString('kankaku') != "") {
-          int_min_kankaku = int.parse(prefs.getString('kankaku')!);
+          intMinKankaku = int.parse(prefs.getString('kankaku')!);
           _text_controller_kankaku.text = prefs.getString('kankaku')!;
         } else {
-          int_min_kankaku = 1;
+          intMinKankaku = 1;
           _text_controller_kankaku.text = "1";
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('kankaku', "1");
@@ -807,7 +803,7 @@ class _SecondScreenState extends State<SecondScreen> {
   final TextStyle styleB = TextStyle(fontSize: 15.0, color: Colors.white);
   DateTime _goalsleeptime = DateTime.utc(0, 0, 0);
   DateTime _getuptime = DateTime.utc(0, 0, 0);
-  int int_min_kankaku = 1;
+  //int intMinKankaku = 1;
   String? strSelectMusicName = "";
   bool isEnable = false;
   String? _type = '';
@@ -836,10 +832,9 @@ class _SecondScreenState extends State<SecondScreen> {
   @override
   void initState() {
     super.initState();
-    LoadPref_second();
-    LoadMusicName();
+    loadPrefSecond();
+    loadMusicName();
   }
-
   @override
   Widget build(BuildContext context) {
     //動画バナーロード
@@ -935,7 +930,6 @@ class _SecondScreenState extends State<SecondScreen> {
               Text('$strSelectMusicName', style: styleB),
             ]),
                 new Divider(color: Colors.white, thickness: 1.0,),
-
                 //広告
                 adContainer,
               ],
@@ -964,9 +958,9 @@ class _SecondScreenState extends State<SecondScreen> {
 /*------------------------------------------------------------------
 設定画面(SecondScreen) プライベートメソッド
  -------------------------------------------------------------------*/
-  void LoadMusicName() async{
-    String? str_music_path = "";
-    String? str_music_name = "";
+  void loadMusicName() async{
+    String? strMusicPath = "";
+    String? strMusicName = "";
     String dbpath =  await getDatabasesPath();
     String path = p.join(dbpath, "setting.db");
     Database database = await openDatabase(path, version: 1,
@@ -975,17 +969,17 @@ class _SecondScreenState extends State<SecondScreen> {
     List<Map> result = await database
         .rawQuery('select mpath from setting  where id = 1');
     for (Map item in result) {
-      str_music_path = item['mpath'].toString();
+      strMusicPath = item['mpath'].toString();
     }
     final reg = RegExp('[^//]+\$');
-    if(str_music_path != null && str_music_path !="") {
-      str_music_name = reg.firstMatch(str_music_path)?.group(0);
+    if(strMusicPath != null && strMusicPath !="") {
+      strMusicName = reg.firstMatch(strMusicPath)?.group(0);
       _handleRadio(strCnsRadSelMusic);
     }else{
       _handleRadio(strCnsRadDefSound);
     }
     setState(() {
-      strSelectMusicName = str_music_name;
+      strSelectMusicName = strMusicName;
     });
   }
   //ラジオボタン選択時の処理
@@ -1045,7 +1039,7 @@ class _SecondScreenState extends State<SecondScreen> {
       prefs.setString('goalsleeptime', value.toString());
     });
   }
-  void LoadPref_second() async {
+  void loadPrefSecond() async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       setState(() {
         //起床時間の取得
@@ -1235,10 +1229,10 @@ class _ThirdScreenState extends State<ThirdScreen> {
         .rawQuery('SELECT id,date,getupstatus,goalgetuptime FROM rireki order by id desc');
     for (Map item in result) {
       list.add(ListTile(
-        tileColor: (item['getupstatus'].toString() == cns_getupstatus_s)
+        tileColor: (item['getupstatus'].toString() == cnsGetupStatusS)
             ? Colors.green
             : Colors.grey,
-        leading: (item['getupstatus'].toString() == cns_getupstatus_s)
+        leading: (item['getupstatus'].toString() == cnsGetupStatusS)
             ? Icon(Icons.thumb_up)
             : Icon(Icons.redo),
         title:Text(

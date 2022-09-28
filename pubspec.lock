@@ -7,7 +7,7 @@ packages:
       name: android_alarm_manager_plus
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.7"
+    version: "2.0.7+1"
   archive:
     dependency: transitive
     description:
@@ -154,7 +154,7 @@ packages:
       name: file_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.2.0"
+    version: "5.2.0+1"
   flutter:
     dependency: "direct main"
     description: flutter

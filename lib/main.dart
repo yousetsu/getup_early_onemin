@@ -86,12 +86,8 @@ Future<void> main() async {
     selectedNotificationPayload = notificationAppLaunchDetails!.payload;
     initialRoute = '/';
   }
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-
-  final InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
+  const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+  const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,
       onSelectNotification: (String? payload) async {
     if (payload != null) {
@@ -103,7 +99,7 @@ Future<void> main() async {
   //広告初期化
   WidgetsFlutterBinding.ensureInitialized();
   final initFuture = MobileAds.instance.initialize();
-  runApp(new MyApp());
+  runApp(MyApp());
   //初回DB登録
   _firstrun();
 
@@ -113,8 +109,8 @@ Future<void> _configureLocalTimeZone() async {
     return;
   }
   tz.initializeTimeZones();
-  final String? timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
-  tz.setLocalLocation(tz.getLocation(timeZoneName!));
+  final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+  tz.setLocalLocation(tz.getLocation(timeZoneName));
 }
 //初回起動分の処理
 Future<void> _firstrun() async {
@@ -152,9 +148,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'Generated App',
-      theme: new ThemeData(
+      theme: ThemeData(
         primarySwatch: Colors.blue,
         primaryColor: const Color(0xFF2196f3),
         accentColor: const Color(0xFF2196f3),
@@ -177,7 +173,7 @@ class MyApp extends StatelessWidget {
 class FirstScreen extends StatefulWidget {
   FirstScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
-  _FirstScreenState createState() => new _FirstScreenState();
+  _FirstScreenState createState() =>  _FirstScreenState();
 }
 class _FirstScreenState extends State<FirstScreen> {
   final _controllerTitle = TextEditingController();
@@ -213,7 +209,7 @@ class _FirstScreenState extends State<FirstScreen> {
   stopTheSound() async {
     await flutterLocalNotificationsPlugin.cancel(helloAlarmID);
     await AndroidAlarmManager.oneShot(
-        Duration(seconds: 0), helloAlarmID, stopSound,
+        const Duration(seconds: 0), helloAlarmID, stopSound,
         exact: true, wakeup: true, alarmClock: true, allowWhileIdle: true);
   }
   static stopSound() async {
@@ -223,7 +219,7 @@ class _FirstScreenState extends State<FirstScreen> {
   static Future<void> callSoundStart() async {
 
     String? strSePath = null;
-    strSePath = await LoadMusicPath();
+    strSePath = await loadMusicPath();
 
     _player = AudioPlayer();
     final session = await AudioSession.instance;
@@ -236,7 +232,7 @@ class _FirstScreenState extends State<FirstScreen> {
     }
     await _player.play();
   }
-  static Future<String?> LoadMusicPath() async{
+  static Future<String?> loadMusicPath() async{
     String? strMusicPath = "";
     String dbpath =  await getDatabasesPath();
     String path = p.join(dbpath, "setting.db");
@@ -474,7 +470,7 @@ class _FirstScreenState extends State<FirstScreen> {
               Padding(padding: EdgeInsets.all(20),),
               Icon(Icons.calendar_month, color: Colors.red, size: 35),
               Padding(padding: EdgeInsets.all(10),),
-                  new Container(
+                   Container(
                     width: 50,
                   child: TextField(
                   controller: _controllergoalday,
@@ -488,19 +484,19 @@ class _FirstScreenState extends State<FirstScreen> {
               ),
               Text('  DAYS TO GO', style: styleB,),
             ]),
-            new Divider(color: Colors.white, thickness: 1.0,),
+             const Divider(color: Colors.white, thickness: 1.0,),
             ///Recommended bedtime
       Row(
         mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-        Padding(padding: EdgeInsets.all(20),),
-        Icon(Icons.bedtime, color: Colors.yellow, size: 35),
-        Padding(padding: EdgeInsets.all(10),),
+        const Padding(padding: EdgeInsets.all(20),),
+        const Icon(Icons.bedtime, color: Colors.yellow, size: 35),
+        const Padding(padding: EdgeInsets.all(10),),
             Text('Recommended Bedtime', style: styleB,),
             ]),
             //ここに目標就寝時刻を表示
             Text(DateFormat.Hm().format(_goal_bedin_time), style: const TextStyle(fontSize: 35.0, color: Colors.white)),
-            Padding(padding: EdgeInsets.all(5.0),),
-            new Divider(color: Colors.white, thickness: 1.0,),
+            const Padding(padding: EdgeInsets.all(5.0),),
+            const Divider(color: Colors.white, thickness: 1.0,),
             //開始ボタン
             SizedBox(
               width: 200, height: 70,
@@ -553,8 +549,8 @@ class _FirstScreenState extends State<FirstScreen> {
       showDialog(
           context: context,
           builder: (BuildContext context) => AlertDialog(
-                title: Text("Confirm"),
-                content: Text("Did you wake up at your target time?"),
+                title: const Text("Confirm"),
+                content: const Text("Did you wake up at your target time?"),
                 actions: <Widget>[
                   FlatButton(
                       child: const Text('Yes'),
@@ -576,8 +572,8 @@ class _FirstScreenState extends State<FirstScreen> {
           showDialog(
               context: context,
               builder: (BuildContext context) => AlertDialog(
-                    title: Text("Confirm"),
-                    content: Text("Move forward tomorrow's wake-up time"),
+                    title: const Text("Confirm"),
+                    content: const Text("Move forward tomorrow's wake-up time"),
                     actions: <Widget>[
                       FlatButton(
                           child: const Text('OK'),
@@ -590,8 +586,8 @@ class _FirstScreenState extends State<FirstScreen> {
           showDialog(
               context: context,
               builder: (BuildContext context) => AlertDialog(
-                    title: Text("Confirm"),
-                    content: Text("Re-challenge tomorrow at the same time!"),
+                    title: const Text("Confirm"),
+                    content: const Text("Re-challenge tomorrow at the same time!"),
                     actions: <Widget>[
                       FlatButton(
                           child: const Text('OK'),
@@ -700,7 +696,7 @@ class _FirstScreenState extends State<FirstScreen> {
         }
         //目標までの日にち算出
         int amari = 0;
-        int _diffmin;
+        int diffmin;
         //最終目標の起床時間を取得
         //明日の起床時刻の取得
         String? strGoalgetuptime = prefs.getString('goalgetuptime');
@@ -716,11 +712,11 @@ class _FirstScreenState extends State<FirstScreen> {
           //目標起床時刻がセットされていれば目標までの日数を表示する
           _goalvisible = true;
           //目標起床時間 - 現在起床時間
-          _diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
+          diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
           //目標までの時間（分）を間隔（分）で割、目標までの日数を計算する
           if (intMinKankaku != 0) {
-            _goal_day = _diffmin ~/ intMinKankaku;
-            amari = _diffmin % intMinKankaku;
+            _goal_day = diffmin ~/ intMinKankaku;
+            amari = diffmin % intMinKankaku;
             if (amari != 0) {
               _goal_day = _goal_day + 1;
             }
@@ -737,23 +733,22 @@ class _FirstScreenState extends State<FirstScreen> {
           _goalvisible = false;
         }
         //目標睡眠時間の取得
-        DateTime _goalsleeptime;
+        DateTime goalsleeptime;
         String? strGoalsleep = prefs.getString('goalsleeptime');
         if (strGoalsleep != null && strGoalsleep != "") {
-          _goalsleeptime = DateTime.parse(strGoalsleep);
+          goalsleeptime = DateTime.parse(strGoalsleep);
         } else {
-          _goalsleeptime = DateTime.utc(2016, 5, 1, 7, 30);
+          goalsleeptime = DateTime.utc(2016, 5, 1, 7, 30);
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
-            prefs.setString('goalsleeptime', _goalsleeptime.toString());
+            prefs.setString('goalsleeptime', goalsleeptime.toString());
           });
         };
         //目標就寝時刻の算出
         //目標睡眠時間 - 明日の起床時刻
-        int sleeptimeHour = _goalsleeptime.hour;
-        int sleeptimeMin = _goalsleeptime.minute;
+        int sleeptimeHour = goalsleeptime.hour;
+        int sleeptimeMin = goalsleeptime.minute;
         _goal_bedin_time = _getuptime
             .subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
-        //_goalsleeptime.minute
         //間隔の取得
         if (prefs.getString('kankaku') != null &&
             prefs.getString('kankaku') != "") {
@@ -792,15 +787,15 @@ class _FirstScreenState extends State<FirstScreen> {
 class SecondScreen extends StatefulWidget {
   SecondScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
-  _SecondScreenState createState() => new _SecondScreenState();
+  _SecondScreenState createState() =>  _SecondScreenState();
 }
 /*------------------------------------------------------------------
 設定画面(SecondScreen)
  -------------------------------------------------------------------*/
 class _SecondScreenState extends State<SecondScreen> {
   List<Widget> _items = <Widget>[];
-  final TextStyle styleA = TextStyle(fontSize: 20.0, color: Colors.white);
-  final TextStyle styleB = TextStyle(fontSize: 15.0, color: Colors.white);
+  final TextStyle styleA = const TextStyle(fontSize: 20.0, color: Colors.white);
+  final TextStyle styleB = const TextStyle(fontSize: 15.0, color: Colors.white);
   DateTime _goalsleeptime = DateTime.utc(0, 0, 0);
   DateTime _getuptime = DateTime.utc(0, 0, 0);
   //int intMinKankaku = 1;
@@ -892,7 +887,7 @@ class _SecondScreenState extends State<SecondScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
               Padding(padding: EdgeInsets.only(left:50.0),),
-            new Radio(
+             Radio(
               activeColor: Colors.blue,
               value: strCnsRadDefSound,
               groupValue: _type,
@@ -904,7 +899,7 @@ class _SecondScreenState extends State<SecondScreen> {
       Row(
         mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
         Padding(padding: EdgeInsets.only(left:50.0),),
-            new Radio(
+             Radio(
               activeColor: Colors.blue,
               value: strCnsRadSelMusic,
               groupValue: _type,
@@ -1075,7 +1070,7 @@ const int maxFailedLoadAttempts = 3;
 class ThirdScreen extends StatefulWidget {
   ThirdScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
-  _ThirdScreenState createState() => new _ThirdScreenState();
+  _ThirdScreenState createState() =>  _ThirdScreenState();
 }
 
 class _ThirdScreenState extends State<ThirdScreen> {
@@ -1163,7 +1158,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
        appBar: AppBar(title: Text('Get up history'),),
-      body: new Column(
+      body:  Column(
         children: <Widget>[
           _listHeader(),
           Expanded(
@@ -1197,22 +1192,19 @@ class _ThirdScreenState extends State<ThirdScreen> {
   }
   Widget _listHeader() {
     return Container(
-        decoration: new BoxDecoration(
-            border:
-                new Border(bottom: BorderSide(width: 1.0, color: Colors.grey))),
+        decoration:  const BoxDecoration(
+            border: Border(bottom: BorderSide(width: 1.0, color: Colors.grey))),
         child: ListTile(
-            title: new Row(children: <Widget>[
-              new Expanded(
-                  child: new Text("STATUS",
-                      style: new TextStyle(
+            title:  Row(children: <Widget>[
+              Expanded(
+                  child:  Text("STATUS", style:  TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold))),
-              new Expanded(
-                  child: new Text("DATE",
-                      style: new TextStyle(
+               Expanded(
+                  child:  Text("DATE", style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold))),
-              new Expanded(
-                  child: new Text("TARGET TIME",
-                      style: new TextStyle(
+               Expanded(
+                  child:  Text("TARGET TIME",
+                      style:  TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold))),
         ])));
   }
@@ -1236,12 +1228,11 @@ class _ThirdScreenState extends State<ThirdScreen> {
             ? Icon(Icons.thumb_up)
             : Icon(Icons.redo),
         title:Text(
-        //item['id'].toString() +
             '      ' +
             DateFormat('yyyy/MM/dd').format(DateTime.parse(item['date'])) +
             '               ' +
             DateFormat('HH:mm').format(DateTime.parse(item['goalgetuptime'])),
-        style: new TextStyle(color: Colors.white,fontSize: 20),),
+        style: const TextStyle(color: Colors.white,fontSize: 20),),
         dense: true,
       ));
     }

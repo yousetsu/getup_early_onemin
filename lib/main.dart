@@ -25,7 +25,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:file_picker/file_picker.dart';
 
 late AudioPlayer _player;
-String str_se_path = "";
+String strSePath = "";
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -54,13 +54,13 @@ class ReceivedNotification {
 }
 String? selectedNotificationPayload;
 
-final int helloAlarmID = 19820822;
-const String cns_getupstatus_s = '1';
-const String cns_getupstatus_f = '0';
-const bool cns_alarm_on = true;
-const bool cns_alarm_off = false;
-bool flg_first_run = true;
-const String str_cnt_sql_create_setting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY,mpath TEXT)";
+const int helloAlarmID = 19820822;
+const String cnsGetupStatusS = '1';
+const String cnsGetupStatusF = '0';
+const bool cnsAlarmOn = true;
+const bool cnsAlarmOff = false;
+bool flgFirstRun = true;
+const String strCntSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY,mpath TEXT)";
 const String strCnsRadDefSound = "DefaultSound";
 const String strCnsRadSelMusic = "SelectMusic";
 
@@ -132,7 +132,7 @@ Future<void> _firstrun() async {
   database = await openDatabase(path, version: 1,
       onCreate: (Database db, int version) async {
         await db.execute(
-            str_cnt_sql_create_setting);
+            strCntSqlCreateSetting);
       });
   List<Map> result = await database
       .rawQuery('SELECT mpath FROM setting where id =1');
@@ -225,16 +225,15 @@ class _FirstScreenState extends State<FirstScreen> {
   // The callback for our alarm
   static Future<void> callsound_start() async {
 
-    String? str_se_path = null;
-    str_se_path = await LoadMusicPath();
+    String? strSePath = null;
+    strSePath = await LoadMusicPath();
 
     _player = AudioPlayer();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.music());
     await _player.setLoopMode(LoopMode.all);
-    print("load:" + str_se_path.toString());
-    if(str_se_path != null && str_se_path != "") {
-      await _player.setFilePath(str_se_path);
+    if(strSePath != null && strSePath != "") {
+      await _player.setFilePath(strSePath);
     }else{
       await _player.setAsset('assets/alarm.mp3');
     }
@@ -246,7 +245,7 @@ class _FirstScreenState extends State<FirstScreen> {
     String path = p.join(dbpath, "setting.db");
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-          await db.execute(str_cnt_sql_create_setting);});
+          await db.execute(strCntSqlCreateSetting);});
     List<Map> result = await database
         .rawQuery('select mpath from setting  where id = 1');
     for (Map item in result) {
@@ -327,12 +326,7 @@ class _FirstScreenState extends State<FirstScreen> {
     intMinute = (intHourAmariSec / 60).floor();
     intSecond = (intHourAmariSec % 60).floor();
     Fluttertoast.showToast(
-        msg: intHour.toString() +
-            "hours" +
-            intMinute.toString() +
-            "minutes" +
-            intSecond.toString() +
-            "alarm set");
+        msg: intHour.toString() + "hours" + intMinute.toString() + "minutes" + intSecond.toString() + "alarm set");
   }
   Widget build(BuildContext context) {
     return Scaffold(
@@ -374,10 +368,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         Text('TOMMOROW GET UP TIME', style: styleB),
                       ]),
                   ElevatedButton(
-                    child: Text(
-                      DateFormat.Hm().format(_getuptime),
-                      style: TextStyle(fontSize: 35),
-                    ),
+                    child: Text(DateFormat.Hm().format(_getuptime), style: TextStyle(fontSize: 35),),
                     style: ElevatedButton.styleFrom(
                       primary: Colors.lightBlueAccent,
                       onPrimary: Colors.white,
@@ -553,7 +544,7 @@ class _FirstScreenState extends State<FirstScreen> {
       primaryColor = alarm_flg ? Colors.orange : Colors.blue;
       str_starstop = alarm_flg ? 'START' : 'STOP';
     });
-    if (alarm_flg == cns_alarm_off) {
+    if (alarm_flg == cnsAlarmOff) {
       _saveAlarm(alarm_flg);
       await alramset();
       strStartdate = DateTime.now().toIso8601String();
@@ -623,7 +614,7 @@ class _FirstScreenState extends State<FirstScreen> {
     //履歴テーブルに成功情報をセット
     String? strGetuptime;
     strGetuptime = _getuptime.toIso8601String();
-    saveData(cns_getupstatus_s,strGetuptime);
+    saveData(cnsGetupStatusS,strGetuptime);
     //明日の起床時間を算出・セット
     //本日の目標就寝時刻を算出
     setState(() {
@@ -645,7 +636,7 @@ class _FirstScreenState extends State<FirstScreen> {
     String? strGetuptime;
     strGetuptime = _getuptime.toIso8601String();
     //履歴テーブルに失敗情報をセット
-    saveData(cns_getupstatus_f,strGetuptime);
+    saveData(cnsGetupStatusF,strGetuptime);
   }
   /*------------------------------------------------------------------
 第一画面SAVE(FirstScreen)
@@ -980,7 +971,7 @@ class _SecondScreenState extends State<SecondScreen> {
     String path = p.join(dbpath, "setting.db");
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-          await db.execute(str_cnt_sql_create_setting);});
+          await db.execute(strCntSqlCreateSetting);});
     List<Map> result = await database
         .rawQuery('select mpath from setting  where id = 1');
     for (Map item in result) {
@@ -1022,12 +1013,12 @@ class _SecondScreenState extends State<SecondScreen> {
     if (result != null) {
       try {
         File file = File(result.files.single.path!);
-        str_se_path = file.path.toString();
+        strSePath = file.path.toString();
         srtName = result.files.single.name;
         setState(() {
           strSelectMusicName = srtName;
         });
-        _saveAlarmMusic(str_se_path);
+        _saveAlarmMusic(strSePath);
       } catch (e) {
         print(e);
       }
@@ -1039,7 +1030,7 @@ class _SecondScreenState extends State<SecondScreen> {
     String path = p.join(dbPath, 'setting.db');
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-          await db.execute(str_cnt_sql_create_setting);
+          await db.execute(strCntSqlCreateSetting);
         });
     String query = 'UPDATE setting set mpath = "$value" where id = 1 ';
     await database.transaction((txn) async {

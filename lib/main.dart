@@ -1108,9 +1108,9 @@ class _ThirdScreenState extends State<ThirdScreen> {
   }
   void _showRewardedAd() {
     _cnt_reward = _cnt_reward + 1;
-    _save_reward_cnt(_cnt_reward);
+    _saveRewardCnt(_cnt_reward);
     if (_cnt_reward >= 5) {
-      _save_reward_cnt(0);
+      _saveRewardCnt(0);
       if (_rewardedAd == null) {
         print('Warning: attempt to show rewarded before loaded.');
         return;
@@ -1148,7 +1148,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
     _cnt_reward = 0;
   }
   //リワードカウント保存
-  void _save_reward_cnt(int value) async {
+  void _saveRewardCnt(int value) async {
 
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       prefs.setInt('rewardcnt', value);
@@ -1157,7 +1157,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar: AppBar(title: Text('Get up history'),),
+       appBar: AppBar(title: const Text('Get up history'),),
       body:  Column(
         children: <Widget>[
           _listHeader(),
@@ -1225,13 +1225,9 @@ class _ThirdScreenState extends State<ThirdScreen> {
             ? Colors.green
             : Colors.grey,
         leading: (item['getupstatus'].toString() == cnsGetupStatusS)
-            ? Icon(Icons.thumb_up)
-            : Icon(Icons.redo),
-        title:Text(
-            '      ' +
-            DateFormat('yyyy/MM/dd').format(DateTime.parse(item['date'])) +
-            '               ' +
-            DateFormat('HH:mm').format(DateTime.parse(item['goalgetuptime'])),
+            ? const Icon(Icons.thumb_up)
+            : const Icon(Icons.redo),
+        title:Text('      ${DateFormat('yyyy/MM/dd').format(DateTime.parse(item['date']))}             ${DateFormat('HH:mm').format(DateTime.parse(item['goalgetuptime']))}',
         style: const TextStyle(color: Colors.white,fontSize: 20),),
         dense: true,
       ));

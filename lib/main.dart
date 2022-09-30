@@ -356,7 +356,7 @@ class _FirstScreenState extends State<FirstScreen> {
                   Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        Icon(Icons.alarm, color: Colors.white, size: 35),
+                        const Icon(Icons.alarm, color: Colors.white, size: 35),
                         Text('TOMMOROW GET UP TIME', style: styleB),
                       ]),
                   ElevatedButton(
@@ -372,7 +372,7 @@ class _FirstScreenState extends State<FirstScreen> {
                             type: PickerDateTimeType.kHM,
                             value: DateTime.parse(_getuptime.toString()),
                             customColumnType: [3, 4]),
-                        title: Text("Select Time"),
+                        title: const Text("Select Time"),
                         onConfirm: (Picker picker, List value) {
                           setState(() => {
                                 _getuptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
@@ -384,15 +384,15 @@ class _FirstScreenState extends State<FirstScreen> {
                     },
                   ),
                   ///INTERVAL
-                  Padding(padding: EdgeInsets.all(5.0),),
+                  const Padding(padding: EdgeInsets.all(5.0),),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        Icon(Icons.watch_later, color: Colors.white, size: 35),
+                        const Icon(Icons.watch_later, color: Colors.white, size: 35),
                         Text('INTERVAL(Minutes)', style: styleB),
                       ]),
                   Container(
-                    padding: EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.all(5.0),
                     alignment: Alignment.bottomCenter,
                     width: 150.0,
                     height: 70,
@@ -416,7 +416,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         return null;
                       },
                      // decoration: InputDecoration(hintText: "1~180"),
-                      style: TextStyle(fontSize: 25, color: Colors.white,),
+                      style: const TextStyle(fontSize: 25, color: Colors.white,),
                       textAlign: TextAlign.center,
                       onFieldSubmitted: (String value) {
                         if (_formKey.currentState?.validate() != null &&
@@ -430,7 +430,7 @@ class _FirstScreenState extends State<FirstScreen> {
                     ),
                   ),
                   ///GOAL GET UP TIME
-                  Padding(padding: EdgeInsets.all(5),),
+                  const Padding(padding: EdgeInsets.all(5),),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
@@ -447,7 +447,7 @@ class _FirstScreenState extends State<FirstScreen> {
                             type: PickerDateTimeType.kHM,
                             value: _goalgetuptime,
                             customColumnType: [3, 4]),
-                        title: Text("Select Time"),
+                        title: const Text("Select Time"),
                         onConfirm: (Picker picker, List value) {
                           setState(() => {
                                 _goalgetuptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
@@ -467,9 +467,9 @@ class _FirstScreenState extends State<FirstScreen> {
             ///Until the goal is achieved 〇 days
             Row(
                 mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-              Padding(padding: EdgeInsets.all(20),),
-              Icon(Icons.calendar_month, color: Colors.red, size: 35),
-              Padding(padding: EdgeInsets.all(10),),
+              const Padding(padding: EdgeInsets.all(20),),
+              const Icon(Icons.calendar_month, color: Colors.red, size: 35),
+              const Padding(padding: EdgeInsets.all(10),),
                    Container(
                     width: 50,
                   child: TextField(

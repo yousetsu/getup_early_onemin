@@ -98,7 +98,8 @@ Future<void> main() async {
   });
   //広告初期化
   WidgetsFlutterBinding.ensureInitialized();
-  final initFuture = MobileAds.instance.initialize();
+  //final initFuture = MobileAds.instance.initialize();
+  MobileAds.instance.initialize();
   runApp(MyApp());
   //初回DB登録
   _firstrun();

@@ -589,7 +589,7 @@ class _FirstScreenState extends State<FirstScreen> {
                     title: const Text("Confirm"),
                     content: const Text("Re-challenge tomorrow at the same time!"),
                     actions: <Widget>[
-                      FlatButton(
+                      TextButton(
                           child: const Text('OK'),
                           onPressed: () =>
                               Navigator.pop<String>(context, 'Ok')),
@@ -842,17 +842,17 @@ class _SecondScreenState extends State<SecondScreen> {
       height: myBanner.size.height.toDouble(),
     );
     return Scaffold(
-      appBar: AppBar(title: Text('Setting'),),
+      appBar: AppBar(title: const Text('Setting'),),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Padding(padding: EdgeInsets.all(20.0),),
-            new Divider(color: Colors.white, thickness: 1.0,),
+            const Padding(padding: EdgeInsets.all(20.0),),
+            const Divider(color: Colors.white, thickness: 1.0,),
             Row(
               mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-                Padding(padding: EdgeInsets.all(20),),
-              Icon(Icons.schedule, color: Colors.white, size: 30),
+                const Padding(padding: EdgeInsets.all(20),),
+              const Icon(Icons.schedule, color: Colors.white, size: 30),
               Text('SLEEP TIME', style: styleA,),
             ],),
                 ElevatedButton(
@@ -864,7 +864,7 @@ class _SecondScreenState extends State<SecondScreen> {
                           type: PickerDateTimeType.kHM,
                           value: _goalsleeptime,
                           customColumnType: [3, 4]),
-                      title: Text("Select Time"),
+                      title: const Text("Select Time"),
                       onConfirm: (Picker picker, List value) {
                         setState(() => {
                               _goalsleeptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
@@ -874,19 +874,19 @@ class _SecondScreenState extends State<SecondScreen> {
                     ).showModal(context);
                   },
                 ),
-                Padding(padding: EdgeInsets.all(20.0),),
+                const Padding(padding: EdgeInsets.all(20.0),),
 
-                new Divider(color: Colors.white, thickness: 1.0,),
+                const Divider(color: Colors.white, thickness: 1.0,),
                 //アラーム選択ボタン
                 Row(
                     mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-                      Padding(padding: EdgeInsets.all(20),),
-                  Icon(Icons.music_note, color: Colors.white, size: 30),
+                      const Padding(padding: EdgeInsets.all(20),),
+                  const Icon(Icons.music_note, color: Colors.white, size: 30),
                   Text('Alarm Sound', style: styleA,),
                 ]),
             Row(
               mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-              Padding(padding: EdgeInsets.only(left:50.0),),
+              const Padding(padding: EdgeInsets.only(left:50.0),),
              Radio(
               activeColor: Colors.blue,
               value: strCnsRadDefSound,
@@ -898,7 +898,7 @@ class _SecondScreenState extends State<SecondScreen> {
             ]),
       Row(
         mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-        Padding(padding: EdgeInsets.only(left:50.0),),
+        const Padding(padding: EdgeInsets.only(left:50.0),),
              Radio(
               activeColor: Colors.blue,
               value: strCnsRadSelMusic,
@@ -912,19 +912,19 @@ class _SecondScreenState extends State<SecondScreen> {
                   style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: EdgeInsets.symmetric(vertical: 10, horizontal: 60),),
                    onPressed: !isEnable ? null :() async {alarmfileselect();},
                 ),
-               Padding(padding: EdgeInsets.all(10.0),),
+               const Padding(padding: EdgeInsets.all(10.0),),
                 //アラーム選択ファイル
             Row(
                 mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-                  Padding(padding: EdgeInsets.only(left:60.0),),
+                  const Padding(padding: EdgeInsets.only(left:60.0),),
               Text('Select Music：', style: styleA),
             ]),
             Row(
                 mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-              Padding(padding: EdgeInsets.only(left:90.0),),
+              const Padding(padding: EdgeInsets.only(left:90.0),),
               Text('$strSelectMusicName', style: styleB),
             ]),
-                new Divider(color: Colors.white, thickness: 1.0,),
+                const Divider(color: Colors.white, thickness: 1.0,),
                 //広告
                 adContainer,
               ],
@@ -1068,7 +1068,7 @@ class _SecondScreenState extends State<SecondScreen> {
 const int maxFailedLoadAttempts = 3;
 
 class ThirdScreen extends StatefulWidget {
-  ThirdScreen({Key? key}) : super(key: key); //コンストラクタ
+  const ThirdScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
   _ThirdScreenState createState() =>  _ThirdScreenState();
 }

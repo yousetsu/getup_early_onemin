@@ -81,10 +81,8 @@ Future<void> main() async {
           Platform.isLinux
       ? null
       : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
-  String initialRoute = '/';
   if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
     selectedNotificationPayload = notificationAppLaunchDetails!.payload;
-    initialRoute = '/';
   }
   const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
   const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
@@ -138,7 +136,8 @@ Future<void> _firstrun() async {
     //設定テーブル初期値設定
     String query = 'INSERT INTO setting(id ,mpath)values(1,"mpath/test")';
     await database.transaction((txn) async {
-      int id = await txn.rawInsert(query);
+      //int id = await txn.rawInsert(query);
+      await txn.rawInsert(query);
     });
   }
 }

@@ -145,7 +145,7 @@ Future<void> _firstrun() async {
 第メイン画面(MainScreen)
  -------------------------------------------------------------------*/
 class MyApp extends StatelessWidget {
-
+  const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -171,7 +171,7 @@ class MyApp extends StatelessWidget {
 第一画面(FirstScreen)
  -------------------------------------------------------------------*/
 class FirstScreen extends StatefulWidget {
-  FirstScreen({Key? key}) : super(key: key); //コンストラクタ
+  const FirstScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
   _FirstScreenState createState() =>  _FirstScreenState();
 }
@@ -188,12 +188,12 @@ class _FirstScreenState extends State<FirstScreen> {
   int _goal_day = 0;
   bool alarm_flg = false;
   MaterialColor primaryColor = Colors.orange;
-  String str_starstop = '開始';
+  String strStarstop = '開始';
 
   //現在日付
   late String strStartdate;
-  final TextStyle styleA = TextStyle(fontSize: 28.0, color: Colors.white,);
-  final TextStyle styleB = TextStyle(fontSize: 15.0, color: Colors.white);
+  final TextStyle styleA = const TextStyle(fontSize: 28.0, color: Colors.white,);
+  final TextStyle styleB = const TextStyle(fontSize: 15.0, color: Colors.white);
   @override
   void initState() {
     _getuptime = DateTime.now();
@@ -501,7 +501,7 @@ class _FirstScreenState extends State<FirstScreen> {
             SizedBox(
               width: 200, height: 70,
               child: ElevatedButton(
-                child: Text( str_starstop, style: const TextStyle(fontSize: 35.0, color: Colors.white,),),
+                child: Text( strStarstop, style: const TextStyle(fontSize: 35.0, color: Colors.white,),),
                 style: ElevatedButton.styleFrom(primary: primaryColor, onPrimary: Colors.white, shape: const StadiumBorder(), elevation: 16,),
                 onPressed: buttonPressed,
               ),
@@ -534,7 +534,7 @@ class _FirstScreenState extends State<FirstScreen> {
     alarm_flg = !alarm_flg;
     setState(() {
       primaryColor = alarm_flg ? Colors.orange : Colors.blue;
-      str_starstop = alarm_flg ? 'START' : 'STOP';
+      strStarstop = alarm_flg ? 'START' : 'STOP';
     });
     if (alarm_flg == cnsAlarmOff) {
       _saveAlarm(alarm_flg);
@@ -552,13 +552,13 @@ class _FirstScreenState extends State<FirstScreen> {
                 title: const Text("Confirm"),
                 content: const Text("Did you wake up at your target time?"),
                 actions: <Widget>[
-                  FlatButton(
+                  TextButton(
                       child: const Text('Yes'),
                       onPressed: () => Navigator.pop<String>(context, 'Yes')),
-                  FlatButton(
+                  TextButton(
                       child: const Text('No'),
                       onPressed: () => Navigator.pop<String>(context, 'No')),
-                  FlatButton(
+                  TextButton(
                       child: const Text('Cancel Alarm'),
                       onPressed: () => Navigator.pop<String>(context, 'Cancel'))
                 ],
@@ -670,7 +670,7 @@ class _FirstScreenState extends State<FirstScreen> {
         //アラームボタン
         alarm_flg = prefs.getBool('Alarmonoff') ?? true;
         primaryColor = alarm_flg ? Colors.orange : Colors.blue;
-        str_starstop = alarm_flg ? 'START' : 'STOP';
+        strStarstop = alarm_flg ? 'START' : 'STOP';
         //起床時間の取得
         String? strGetuptime = prefs.getString('getuptime');
         if (strGetuptime != null && strGetuptime != "") {

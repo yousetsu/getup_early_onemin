@@ -98,7 +98,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //final initFuture = MobileAds.instance.initialize();
   MobileAds.instance.initialize();
-  runApp(MyApp());
+  runApp(const MyApp());
   //初回DB登録
   _firstrun();
 
@@ -158,9 +158,9 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => FirstScreen(),
-        '/setting': (context) => SecondScreen(),
-        '/list': (context) => ThirdScreen(),
+        '/': (context) => const FirstScreen(),
+        '/setting': (context) => const SecondScreen(),
+        '/list': (context) => const ThirdScreen(),
       },
     );
   }
@@ -697,8 +697,6 @@ class _FirstScreenState extends State<FirstScreen> {
           });
         };
         if (_goalgetuptime != DateTime.utc(0, 0, 0, 0, 0)) {
-          //目標起床時刻がセットされていれば目標までの日数を表示する
-          _goalvisible = true;
           //目標起床時間 - 現在起床時間
           diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
           //目標までの時間（分）を間隔（分）で割、目標までの日数を計算する
@@ -716,9 +714,6 @@ class _FirstScreenState extends State<FirstScreen> {
           //目標までの日数を画面に表示
           _controllergoalday.text =
                 _goal_day.toString() ;
-        } else {
-          //目標起床時刻がセットされていれば目標までの日数を非表示にする
-          _goalvisible = false;
         }
         //目標睡眠時間の取得
         DateTime goalsleeptime;

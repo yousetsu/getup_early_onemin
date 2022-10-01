@@ -151,12 +151,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Generated App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
         primaryColor: const Color(0xFF2196f3),
-        accentColor: const Color(0xFF2196f3),
         hintColor: const Color(0xFF2196f3),
-        //canvasColor: const Color(0x000000f3),
         canvasColor: const Color(0xFF515254),
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue).copyWith(secondary: const Color(0xFF2196f3)),
       ),
       initialRoute: '/',
       routes: {
@@ -197,11 +195,6 @@ class _FirstScreenState extends State<FirstScreen> {
   @override
   void initState() {
     _getuptime = DateTime.now();
-        //DateTime.utc(0, 0, 0);
-    DateTime testdate = DateTime.now();
-    DateTime  datetime = DateTime.parse(_getuptime.toIso8601String());
-    DateTime  datetime3 = DateTime.parse(_getuptime.toString());
-    DateTime  datetime4 = _getuptime;
     super.initState();
     AndroidAlarmManager.initialize();
     loadPref();
@@ -575,7 +568,7 @@ class _FirstScreenState extends State<FirstScreen> {
                     title: const Text("Confirm"),
                     content: const Text("Move forward tomorrow's wake-up time"),
                     actions: <Widget>[
-                      FlatButton(
+                      TextButton(
                           child: const Text('OK'),
                           onPressed: () =>
                               Navigator.pop<String>(context, 'Ok')),
@@ -654,11 +647,6 @@ class _FirstScreenState extends State<FirstScreen> {
   void _savegoalgetuptimepref(DateTime value) async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       prefs.setString('goalgetuptime', value.toString());
-    });
-  }
-  void _saveflgfirstrunpref(bool value) async {
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      prefs.setBool('flgfirstrun', value);
     });
   }
   /*------------------------------------------------------------------
@@ -779,13 +767,14 @@ class _FirstScreenState extends State<FirstScreen> {
         'INSERT INTO rireki(date,getupstatus, goalgetuptime,realgetuptime,goalbedintime,realbedintime,sleeptime) values("$strnowdate","$status","$strGetuptime",null,null,null,null)';
 
     await database.transaction((txn) async {
-      int id = await txn.rawInsert(query);
+//      int id = await txn.rawInsert(query);
+        await txn.rawInsert(query);
       //   print("insert: $id");
     });
   }
 }
 class SecondScreen extends StatefulWidget {
-  SecondScreen({Key? key}) : super(key: key); //コンストラクタ
+  const SecondScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
   _SecondScreenState createState() =>  _SecondScreenState();
 }
@@ -793,7 +782,6 @@ class SecondScreen extends StatefulWidget {
 設定画面(SecondScreen)
  -------------------------------------------------------------------*/
 class _SecondScreenState extends State<SecondScreen> {
-  List<Widget> _items = <Widget>[];
   final TextStyle styleA = const TextStyle(fontSize: 20.0, color: Colors.white);
   final TextStyle styleB = const TextStyle(fontSize: 15.0, color: Colors.white);
   DateTime _goalsleeptime = DateTime.utc(0, 0, 0);
@@ -1023,7 +1011,8 @@ class _SecondScreenState extends State<SecondScreen> {
         });
     String query = 'UPDATE setting set mpath = "$value" where id = 1 ';
     await database.transaction((txn) async {
-      int id = await txn.rawInsert(query);
+      //int id = await txn.rawInsert(query);
+      await txn.rawInsert(query);
       //   print("insert: $id");
     });
   }

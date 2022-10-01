@@ -178,7 +178,6 @@ class _FirstScreenState extends State<FirstScreen> {
   final _controllergoalday = TextEditingController();
   final _text_controller_kankaku = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _goalvisible = false;
   DateTime _getuptime = DateTime.utc(0, 0, 0);
   DateTime _goalgetuptime = DateTime.utc(0, 0, 0);
   DateTime _goal_bedin_time = DateTime.utc(0, 0, 0);

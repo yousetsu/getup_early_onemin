@@ -60,7 +60,8 @@ const String cnsGetupStatusF = '0';
 const bool cnsAlarmOn = true;
 const bool cnsAlarmOff = false;
 bool flgFirstRun = true;
-const String strCntSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY,mpath TEXT)";
+const String strCntSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT getuptime TEXT,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
+const String strCnsSqlCreateRireki ="CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)";
 const String strCnsRadDefSound = "DefaultSound";
 const String strCnsRadSelMusic = "SelectMusic";
 
@@ -74,7 +75,7 @@ const String strCnsRewardID = 'ca-app-pub-3940256099942544/5224354917'; //Reward
 RewardedAd? _rewardedAd;
 int _numRewardedLoadAttempts = 0;
 /*------------------------------------------------------------------
-初回起動
+起動
  -------------------------------------------------------------------*/
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -124,22 +125,20 @@ Future<void> _firstrun() async {
   String path = p.join(dbpath, "rireki.db");
   Database database = await openDatabase(path, version: 1,
       onCreate: (Database db, int version) async {
-        await db.execute(
-            "CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)");
+        await db.execute(strCnsSqlCreateRireki);
       });
   //設定テーブル作成
   path = p.join(dbpath, "setting.db");
   database = await openDatabase(path, version: 1,
       onCreate: (Database db, int version) async {
-        await db.execute(
-            strCntSqlCreateSetting);
+        await db.execute(strCntSqlCreateSetting);
       });
   List<Map> result = await database
       .rawQuery('SELECT mpath FROM setting where id =1');
 
   if (result.isEmpty){
     //設定テーブル初期値設定
-    String query = 'INSERT INTO setting(id ,mpath)values(1,"mpath/test")';
+    String query = 'INSERT INTO setting(id ,mpath)values(1,"X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
     await database.transaction((txn) async {
       //int id = await txn.rawInsert(query);
       await txn.rawInsert(query);
@@ -165,6 +164,36 @@ void _createRewardedAd() {
           }
         },
       ));
+}
+//設定テーブルにデータ保存
+void _saveSetting(String field ,String value) async {
+  String dbPath = await getDatabasesPath();
+  String path = p.join(dbPath, 'setting.db');
+  Database database = await openDatabase(path, version: 1,
+      onCreate: (Database db, int version) async {
+        await db.execute(strCntSqlCreateSetting);
+      });
+  String query = 'UPDATE setting set $field = "$value" where id = 1 ';
+  await database.transaction((txn) async {
+    //int id = await txn.rawInsert(query);
+    await txn.rawInsert(query);
+    //   print("insert: $id");
+  });
+}
+Future<String?> _loadSetting(String field) async{
+  String? strValue = "";
+  String dbPath = await getDatabasesPath();
+  String path = p.join(dbPath, 'setting.db');
+  Database database = await openDatabase(path, version: 1,
+      onCreate: (Database db, int version) async {
+        await db.execute(strCntSqlCreateSetting);
+      });
+  List<Map> result = await database.rawQuery('SELECT $field From setting where id = 1 ');
+  for (Map item in result) {
+    strValue = item[field].toString();
+  }
+
+  return strValue;
 }
 /*------------------------------------------------------------------
 第メイン画面(MainScreen)
@@ -773,8 +802,7 @@ class _FirstScreenState extends State<FirstScreen> {
 
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-      await db.execute(
-          "CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)");
+      await db.execute(strCnsSqlCreateRireki);
     });
     String query =
         'INSERT INTO rireki(date,getupstatus, goalgetuptime,realgetuptime,goalbedintime,realbedintime,sleeptime) values("$strnowdate","$status","$strGetuptime",null,null,null,null)';
@@ -1224,8 +1252,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
     String path = p.join(dbpath, "rireki.db");
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-      await db.execute(
-          "CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)");
+      await db.execute(strCnsSqlCreateRireki);
     });
     List<Map> result = await database
         .rawQuery('SELECT id,date,getupstatus,goalgetuptime FROM rireki order by id desc');

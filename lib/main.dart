@@ -71,6 +71,8 @@ const String strCnsRewardID = 'ca-app-pub-3940256099942544/5224354917'; //Reward
 //本番
 //const String strCnsBannerID = 'ca-app-pub-8759269867859745/2745032231'; //banner
 //const String strCnsRewardID = 'ca-app-pub-8759269867859745/8740337207'; //Reward
+RewardedAd? _rewardedAd;
+int _numRewardedLoadAttempts = 0;
 /*------------------------------------------------------------------
 初回起動
  -------------------------------------------------------------------*/
@@ -103,6 +105,9 @@ Future<void> main() async {
   _firstrun();
 
 }
+/*------------------------------------------------------------------
+全共通のメソッド
+ -------------------------------------------------------------------*/
 Future<void> _configureLocalTimeZone() async {
   if (kIsWeb || Platform.isLinux) {
     return;
@@ -140,6 +145,26 @@ Future<void> _firstrun() async {
       await txn.rawInsert(query);
     });
   }
+}
+void _createRewardedAd() {
+  RewardedAd.load(
+      adUnitId: strCnsRewardID,
+      request: AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (RewardedAd ad) {
+        //  print('$ad loaded.');
+          _rewardedAd = ad;
+          _numRewardedLoadAttempts = 0;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+        //  print('RewardedAd failed to load: $error');
+          _rewardedAd = null;
+          _numRewardedLoadAttempts += 1;
+          if (_numRewardedLoadAttempts < maxFailedLoadAttempts) {
+            _createRewardedAd();
+          }
+        },
+      ));
 }
 /*------------------------------------------------------------------
 第メイン画面(MainScreen)
@@ -320,10 +345,7 @@ class _FirstScreenState extends State<FirstScreen> {
           textAlign: TextAlign.center,
           readOnly: true,
           enabled: false,
-          style: const TextStyle(
-              fontSize: 20.0,
-              color: Colors.white,
-              decoration: TextDecoration.none),
+          style: const TextStyle(fontSize: 20.0, color: Colors.white, decoration: TextDecoration.none),
         ),
         automaticallyImplyLeading: false, //戻るボタン非表示
       ),
@@ -356,7 +378,7 @@ class _FirstScreenState extends State<FirstScreen> {
                     style: ElevatedButton.styleFrom(
                       primary: Colors.lightBlueAccent,
                       onPrimary: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 80),
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 80),
                     ),
                     onPressed: () async {
                       Picker(
@@ -426,7 +448,7 @@ class _FirstScreenState extends State<FirstScreen> {
                   Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        Icon(Icons.emoji_events, color: Colors.white, size: 35),
+                        const Icon(Icons.emoji_events, color: Colors.white, size: 35),
                         Text('GOAL GET UP TIME', style: styleB),
                       ]),
                   ///GOAL GET UP TIME BUTTON
@@ -468,10 +490,7 @@ class _FirstScreenState extends State<FirstScreen> {
                   controller: _controllergoalday,
                   readOnly: true,
                   enabled: false,
-                  style: const TextStyle(
-                      fontSize: 30.0,
-                      color: Colors.white,
-                      decoration: TextDecoration.none),
+                  style: const TextStyle(fontSize: 30.0, color: Colors.white, decoration: TextDecoration.none),
                 ),
               ),
               Text('  DAYS TO GO', style: styleB,),
@@ -480,7 +499,7 @@ class _FirstScreenState extends State<FirstScreen> {
             ///Recommended bedtime
       Row(
         mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-        const Padding(padding: EdgeInsets.all(20),),
+          const Padding(padding: EdgeInsets.all(20),),
         const Icon(Icons.bedtime, color: Colors.yellow, size: 35),
         const Padding(padding: EdgeInsets.all(10),),
             Text('Recommended Bedtime', style: styleB,),
@@ -806,10 +825,38 @@ class _SecondScreenState extends State<SecondScreen> {
       onAdImpression: (Ad ad) => print('Ad impression.'),
     ),
   );
+  void _showRewardedAdMusic() {
+     if (_rewardedAd == null) {
+        // print('Warning: attempt to show rewarded before loaded.');
+        return;
+      }
+      _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdShowedFullScreenContent: (RewardedAd ad) =>
+            print('ad onAdShowedFullScreenContent.'),
+        onAdDismissedFullScreenContent: (RewardedAd ad) {
+          print('$ad onAdDismissedFullScreenContent.');
+          ad.dispose();
+          _createRewardedAd();
+        },
+        onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
+          print('$ad onAdFailedToShowFullScreenContent: $error');
+          ad.dispose();
+          _createRewardedAd();
+        },
+      );
+      _rewardedAd!.setImmersiveMode(true);
+      _rewardedAd!.show(
+          onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
+            print('$ad with reward $RewardItem(${reward.amount}, ${reward
+                .type})');
+          });
+      _rewardedAd = null;
+  }
   @override
   void initState() {
     super.initState();
     loadPrefSecond();
+    _createRewardedAd();
     loadMusicName();
   }
   @override
@@ -890,8 +937,8 @@ class _SecondScreenState extends State<SecondScreen> {
         Text('Alarm Select', style: styleB,),
       ]),
                 ElevatedButton(
-                  child: Text('Alarm Select', style: TextStyle(fontSize: 25),),
-                  style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: EdgeInsets.symmetric(vertical: 10, horizontal: 60),),
+                  child: const Text('Alarm Select', style: TextStyle(fontSize: 25),),
+                  style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding:const  EdgeInsets.symmetric(vertical: 10, horizontal: 60),),
                    onPressed: !isEnable ? null :() async {alarmfileselect();},
                 ),
                const Padding(padding: EdgeInsets.all(10.0),),
@@ -975,6 +1022,8 @@ class _SecondScreenState extends State<SecondScreen> {
   //アラームファイル選択
   void alarmfileselect() async {
     String srtName ="";
+    //広告再生
+    _showRewardedAdMusic();
     //ファイル選択
     FilePickerResult? result = null;
     result = await FilePicker.platform.pickFiles(
@@ -1058,44 +1107,23 @@ class ThirdScreen extends StatefulWidget {
 
 class _ThirdScreenState extends State<ThirdScreen> {
   List<Widget> _items = <Widget>[];
-  //広告
-  RewardedAd? _rewardedAd;
-  int _numRewardedLoadAttempts = 0;
-  int _cnt_reward = 0;
+  //広告カウント
+  int cntReward = 0;
   @override
   void initState() {
     super.initState();
     getItems();
     _createRewardedAd();
-    _LoadPref_reward_cnt();
+    _loadPrefRewardCnt();
   }
-  void _createRewardedAd() {
-    RewardedAd.load(
-        adUnitId: strCnsRewardID,
-        request: AdRequest(),
-        rewardedAdLoadCallback: RewardedAdLoadCallback(
-          onAdLoaded: (RewardedAd ad) {
-            print('$ad loaded.');
-            _rewardedAd = ad;
-            _numRewardedLoadAttempts = 0;
-          },
-          onAdFailedToLoad: (LoadAdError error) {
-            print('RewardedAd failed to load: $error');
-            _rewardedAd = null;
-            _numRewardedLoadAttempts += 1;
-            if (_numRewardedLoadAttempts < maxFailedLoadAttempts) {
-              _createRewardedAd();
-            }
-          },
-        ));
-  }
+
   void _showRewardedAd() {
-    _cnt_reward = _cnt_reward + 1;
-    _saveRewardCnt(_cnt_reward);
-    if (_cnt_reward >= 5) {
+    cntReward = cntReward + 1;
+    _saveRewardCnt(cntReward);
+    if (cntReward >= 5) {
       _saveRewardCnt(0);
       if (_rewardedAd == null) {
-        print('Warning: attempt to show rewarded before loaded.');
+       // print('Warning: attempt to show rewarded before loaded.');
         return;
       }
       _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
@@ -1121,18 +1149,17 @@ class _ThirdScreenState extends State<ThirdScreen> {
       _rewardedAd = null;
     }
   }
-  void _LoadPref_reward_cnt() async {
+  void _loadPrefRewardCnt() async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       setState(() {
         //リワードカウントの取得
-        _cnt_reward =  prefs.getInt('rewardcnt') ?? 0;
+        cntReward =  prefs.getInt('rewardcnt') ?? 0;
       });
     });
-    _cnt_reward = 0;
+    cntReward = 0;
   }
   //リワードカウント保存
   void _saveRewardCnt(int value) async {
-
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       prefs.setInt('rewardcnt', value);
     });
@@ -1221,3 +1248,4 @@ class _ThirdScreenState extends State<ThirdScreen> {
   }
 
 }
+

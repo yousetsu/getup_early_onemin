@@ -225,7 +225,7 @@ class MyApp extends StatelessWidget {
 class FirstScreen extends StatefulWidget {
   const FirstScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
-  _FirstScreenState createState() =>  _FirstScreenState();
+  State<FirstScreen> createState() =>  _FirstScreenState();
 }
 class _FirstScreenState extends State<FirstScreen> {
   final _controllerTitle = TextEditingController();
@@ -817,7 +817,8 @@ class _FirstScreenState extends State<FirstScreen> {
 class SecondScreen extends StatefulWidget {
   const SecondScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
-  _SecondScreenState createState() =>  _SecondScreenState();
+  State<SecondScreen> createState() =>  _SecondScreenState();
+  //_SecondScreenState createState() =>  _SecondScreenState();
 }
 /*------------------------------------------------------------------
 設定画面(SecondScreen)
@@ -1130,7 +1131,8 @@ const int maxFailedLoadAttempts = 3;
 class ThirdScreen extends StatefulWidget {
   const ThirdScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
-  _ThirdScreenState createState() =>  _ThirdScreenState();
+  State<ThirdScreen> createState() =>  _ThirdScreenState();
+
 }
 
 class _ThirdScreenState extends State<ThirdScreen> {

@@ -180,7 +180,7 @@ void _saveSetting(String field ,String value) async {
     //   print("insert: $id");
   });
 }
-Future<String?> _loadSetting(String field) async{
+Future<String?> _loadStrSetting(String field) async{
   String? strValue = "";
   String dbPath = await getDatabasesPath();
   String path = p.join(dbPath, 'setting.db');
@@ -734,15 +734,15 @@ class _FirstScreenState extends State<FirstScreen> {
         int diffmin;
         //最終目標の起床時間を取得
         //明日の起床時刻の取得
-        String? strGoalgetuptime = prefs.getString('goalgetuptime');
-        if (strGoalgetuptime != null && strGoalgetuptime != "") {
-          _goalgetuptime = DateTime.parse(strGoalgetuptime);
-        } else {
-          _goalgetuptime = DateTime.utc(2016, 5, 1, 5, 30);
-          SharedPreferences.getInstance().then((SharedPreferences prefs) {
-            prefs.setString('goalgetuptime', _goalgetuptime.toString());
-          });
-        };
+        // String? strGoalgetuptime = prefs.getString('goalgetuptime');
+        // if (strGoalgetuptime != null && strGoalgetuptime != "") {
+        //   _goalgetuptime = DateTime.parse(strGoalgetuptime);
+        // } else {
+        //   _goalgetuptime = DateTime.utc(2016, 5, 1, 5, 30);
+        //   SharedPreferences.getInstance().then((SharedPreferences prefs) {
+        //     prefs.setString('goalgetuptime', _goalgetuptime.toString());
+        //   });
+        // };
         if (_goalgetuptime != DateTime.utc(0, 0, 0, 0, 0)) {
           //目標起床時間 - 現在起床時間
           diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
@@ -793,6 +793,14 @@ class _FirstScreenState extends State<FirstScreen> {
         };
       });
     });
+    String? strGoalgetuptime = await _loadStrSetting("goalgetuptime");
+    if (strGoalgetuptime != null && strGoalgetuptime != "") {
+      _goalgetuptime = DateTime.parse(strGoalgetuptime);
+    } else {
+    //  _goalgetuptime = DateTime.utc(2016, 5, 1, 5, 30);
+   //   _saveSetting("goalgetuptime",_goalgetuptime.toString());
+    };
+
   }
   void saveData(String status ,String strGetuptime) async {
     String dbPath = await getDatabasesPath();

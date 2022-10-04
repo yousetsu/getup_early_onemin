@@ -133,9 +133,7 @@ Future<void> _firstrun() async {
       onCreate: (Database db, int version) async {
         await db.execute(strCntSqlCreateSetting);
       });
-  List<Map> result = await database
-      .rawQuery('SELECT mpath FROM setting where id =1');
-
+  List<Map> result = await database.rawQuery('SELECT mpath FROM setting where id =1');
   if (result.isEmpty){
     //設定テーブル初期値設定
     String query = 'INSERT INTO setting(id ,mpath)values(1,"X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
@@ -554,7 +552,7 @@ class _FirstScreenState extends State<FirstScreen> {
         selectedItemColor: Colors.deepOrange,
         unselectedItemColor: Colors.orangeAccent,
         currentIndex: 0,
-        items: <BottomNavigationBarItem>[
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(label: 'Home', icon: Icon(Icons.home)),
           BottomNavigationBarItem(label: 'Setting', icon: Icon(Icons.settings)),
           BottomNavigationBarItem(label: 'History', icon: Icon(Icons.list)),
@@ -800,7 +798,6 @@ class _FirstScreenState extends State<FirstScreen> {
     //  _goalgetuptime = DateTime.utc(2016, 5, 1, 5, 30);
    //   _saveSetting("goalgetuptime",_goalgetuptime.toString());
     };
-
   }
   void saveData(String status ,String strGetuptime) async {
     String dbPath = await getDatabasesPath();

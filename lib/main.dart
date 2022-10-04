@@ -60,8 +60,10 @@ const String cnsGetupStatusF = '0';
 const bool cnsAlarmOn = true;
 const bool cnsAlarmOff = false;
 bool flgFirstRun = true;
-const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT getuptime TEXT,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
-const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,getuptime,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,mpath) values("X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
+// const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT getuptime TEXT,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
+// const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,getuptime,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,mpath) values("X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
+const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT ,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
+const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,mpath) values("X" ,"",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
 
 const String strCnsSqlCreateRireki ="CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)";
 const String strCnsRadDefSound = "DefaultSound";

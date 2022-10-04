@@ -998,7 +998,7 @@ class _SecondScreenState extends State<SecondScreen> {
         selectedItemColor: Colors.deepOrange,
         unselectedItemColor: Colors.orangeAccent,
         currentIndex: 1,
-        items: <BottomNavigationBarItem>[
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(label: 'Home', icon: Icon(Icons.home)),
           BottomNavigationBarItem(label: 'Setting', icon: Icon(Icons.settings)),
           BottomNavigationBarItem(label: 'History', icon: Icon(Icons.list)),
@@ -1218,7 +1218,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
         selectedItemColor: Colors.deepOrange,
         unselectedItemColor: Colors.orangeAccent,
         currentIndex: 2,
-        items: <BottomNavigationBarItem>[
+        items:const  <BottomNavigationBarItem>[
           BottomNavigationBarItem(label: 'Home', icon: Icon(Icons.home)),
           BottomNavigationBarItem(label: 'Setting', icon: Icon(Icons.settings)),
           BottomNavigationBarItem(label: 'History', icon: Icon(Icons.list)),

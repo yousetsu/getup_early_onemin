@@ -60,7 +60,9 @@ const String cnsGetupStatusF = '0';
 const bool cnsAlarmOn = true;
 const bool cnsAlarmOff = false;
 bool flgFirstRun = true;
-const String strCntSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT getuptime TEXT,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
+const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT getuptime TEXT,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
+const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,getuptime,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,mpath) values("X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
+
 const String strCnsSqlCreateRireki ="CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)";
 const String strCnsRadDefSound = "DefaultSound";
 const String strCnsRadSelMusic = "SelectMusic";
@@ -131,12 +133,12 @@ Future<void> _firstrun() async {
   path = p.join(dbpath, "setting.db");
   database = await openDatabase(path, version: 1,
       onCreate: (Database db, int version) async {
-        await db.execute(strCntSqlCreateSetting);
+        await db.execute(strCnsSqlCreateSetting);
       });
   List<Map> result = await database.rawQuery('SELECT mpath FROM setting where id =1');
   if (result.isEmpty){
     //設定テーブル初期値設定
-    String query = 'INSERT INTO setting(id ,mpath)values(1,"X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
+    String query = strCnsSqlInsDefSetting;
     await database.transaction((txn) async {
       //int id = await txn.rawInsert(query);
       await txn.rawInsert(query);
@@ -169,7 +171,7 @@ void _saveSetting(String field ,String value) async {
   String path = p.join(dbPath, 'setting.db');
   Database database = await openDatabase(path, version: 1,
       onCreate: (Database db, int version) async {
-        await db.execute(strCntSqlCreateSetting);
+        await db.execute(strCnsSqlCreateSetting);
       });
   String query = 'UPDATE setting set $field = "$value" where id = 1 ';
   await database.transaction((txn) async {
@@ -184,7 +186,7 @@ Future<String?> _loadStrSetting(String field) async{
   String path = p.join(dbPath, 'setting.db');
   Database database = await openDatabase(path, version: 1,
       onCreate: (Database db, int version) async {
-        await db.execute(strCntSqlCreateSetting);
+        await db.execute(strCnsSqlCreateSetting);
       });
   List<Map> result = await database.rawQuery('SELECT $field From setting where id = 1 ');
   for (Map item in result) {
@@ -267,7 +269,7 @@ class _FirstScreenState extends State<FirstScreen> {
 
     _player = AudioPlayer();
     final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration.music());
+    await session.configure(const AudioSessionConfiguration.music());
     await _player.setLoopMode(LoopMode.all);
     if(strSePath != null && strSePath != "") {
       await _player.setFilePath(strSePath);
@@ -282,7 +284,7 @@ class _FirstScreenState extends State<FirstScreen> {
     String path = p.join(dbpath, "setting.db");
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-          await db.execute(strCntSqlCreateSetting);});
+          await db.execute(strCnsSqlCreateSetting);});
     List<Map> result = await database
         .rawQuery('select mpath from setting  where id = 1');
     for (Map item in result) {
@@ -1023,7 +1025,7 @@ class _SecondScreenState extends State<SecondScreen> {
     String path = p.join(dbpath, "setting.db");
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-          await db.execute(strCntSqlCreateSetting);});
+          await db.execute(strCnsSqlCreateSetting);});
     List<Map> result = await database
         .rawQuery('select mpath from setting  where id = 1');
     for (Map item in result) {
@@ -1084,7 +1086,7 @@ class _SecondScreenState extends State<SecondScreen> {
     String path = p.join(dbPath, 'setting.db');
     Database database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-          await db.execute(strCntSqlCreateSetting);
+          await db.execute(strCnsSqlCreateSetting);
         });
     String query = 'UPDATE setting set mpath = "$value" where id = 1 ';
     await database.transaction((txn) async {

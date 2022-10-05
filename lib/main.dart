@@ -150,7 +150,7 @@ Future<void> _firstrun() async {
 void _createRewardedAd() {
   RewardedAd.load(
       adUnitId: strCnsRewardID,
-      request: AdRequest(),
+      request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {
         //  print('$ad loaded.');
@@ -232,7 +232,7 @@ class FirstScreen extends StatefulWidget {
 class _FirstScreenState extends State<FirstScreen> {
   final _controllerTitle = TextEditingController();
   final _controllergoalday = TextEditingController();
-  final _text_controller_kankaku = TextEditingController();
+  final _textControllerKankaku = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   DateTime _getuptime = DateTime.utc(0, 0, 0);
   DateTime _goalgetuptime = DateTime.utc(0, 0, 0);
@@ -449,7 +449,7 @@ class _FirstScreenState extends State<FirstScreen> {
                     child:Form(
                       key: _formKey,
                     child: TextFormField(
-                      controller: _text_controller_kankaku,
+                      controller: _textControllerKankaku,
                       //ここに初期値
                       keyboardType: TextInputType.number,
                       validator: (value) {
@@ -785,10 +785,10 @@ class _FirstScreenState extends State<FirstScreen> {
         if (prefs.getString('kankaku') != null &&
             prefs.getString('kankaku') != "") {
           intMinKankaku = int.parse(prefs.getString('kankaku')!);
-          _text_controller_kankaku.text = prefs.getString('kankaku')!;
+          _textControllerKankaku.text = prefs.getString('kankaku')!;
         } else {
           intMinKankaku = 1;
-          _text_controller_kankaku.text = "1";
+          _textControllerKankaku.text = "1";
           SharedPreferences.getInstance().then((SharedPreferences prefs) {
             prefs.setString('kankaku', "1");
           });

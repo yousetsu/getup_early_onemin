@@ -194,7 +194,6 @@ Future<String?> _loadStrSetting(String field) async{
   for (Map item in result) {
     strValue = item[field].toString();
   }
-
   return strValue;
 }
 /*------------------------------------------------------------------
@@ -495,9 +494,9 @@ class _FirstScreenState extends State<FirstScreen> {
                         title: const Text("Select Time"),
                         onConfirm: (Picker picker, List value) {
                           setState(() => {
-                                _goalgetuptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
-                                _savegoalgetuptimepref(_goalgetuptime),
-                                loadPref(),
+                            _goalgetuptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
+                            _saveSetting( 'goalgetuptime',_goalgetuptime.toString()),
+                            loadPref(),
                               });
                         },
                         onSelect: (Picker picker, int index, List<int> selected){
@@ -579,7 +578,7 @@ class _FirstScreenState extends State<FirstScreen> {
       strStarstop = alarm_flg ? 'START' : 'STOP';
     });
     if (alarm_flg == cnsAlarmOff) {
-      _saveAlarm(alarm_flg);
+      _saveSetting('alarmonoff','');
       await alramset();
       strStartdate = DateTime.now().toIso8601String();
       SharedPreferences.getInstance().then((SharedPreferences prefs) {
@@ -587,7 +586,7 @@ class _FirstScreenState extends State<FirstScreen> {
       });
     } else {
       stopTheSound();
-      _saveAlarm(alarm_flg);
+      _saveSetting('alarmonoff','X');
       showDialog(
           context: context,
           builder: (BuildContext context) => AlertDialog(
@@ -681,21 +680,9 @@ class _FirstScreenState extends State<FirstScreen> {
       prefs.setString('getuptime', value.toString());
     });
   }
-  //アラームon off
-  void _saveAlarm(bool value) async {
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      prefs.setBool('Alarmonoff', value);
-    });
-  }
   void _savekankakupref(String value) async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       prefs.setString('kankaku', value);
-    });
-  }
-  //目標起床時刻の保存
-  void _savegoalgetuptimepref(DateTime value) async {
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      prefs.setString('goalgetuptime', value.toString());
     });
   }
   /*------------------------------------------------------------------
@@ -795,13 +782,22 @@ class _FirstScreenState extends State<FirstScreen> {
         };
       });
     });
+    //アラーム
+    String? strAlarmonoff = await _loadStrSetting("alarmonoff");
+    setState(() {
+      if (strAlarmonoff != null && strAlarmonoff.compareTo("X") == 0) {
+        alarm_flg = true;
+      } else {
+        alarm_flg = false;
+      }
+    });
+    primaryColor = alarm_flg ? Colors.orange : Colors.blue;
+    strStarstop = alarm_flg ? 'START' : 'STOP';
+    //目標起床時間
     String? strGoalgetuptime = await _loadStrSetting("goalgetuptime");
     if (strGoalgetuptime != null && strGoalgetuptime != "") {
-      _goalgetuptime = DateTime.parse(strGoalgetuptime);
-    } else {
-    //  _goalgetuptime = DateTime.utc(2016, 5, 1, 5, 30);
-   //   _saveSetting("goalgetuptime",_goalgetuptime.toString());
-    };
+      setState(() {_goalgetuptime = DateTime.parse(strGoalgetuptime);});
+    }
   }
   void saveData(String status ,String strGetuptime) async {
     String dbPath = await getDatabasesPath();

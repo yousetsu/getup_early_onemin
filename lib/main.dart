@@ -196,6 +196,20 @@ Future<String?> _loadStrSetting(String field) async{
   }
   return strValue;
 }
+Future<int?> _loadIntSetting(String field) async{
+  int? intValue = 0;
+  String dbPath = await getDatabasesPath();
+  String path = p.join(dbPath, 'setting.db');
+  Database database = await openDatabase(path, version: 1,
+      onCreate: (Database db, int version) async {
+        await db.execute(strCnsSqlCreateSetting);
+      });
+  List<Map> result = await database.rawQuery('SELECT $field From setting where id = 1 ');
+  for (Map item in result) {
+    intValue = item[field];
+  }
+  return intValue;
+}
 /*------------------------------------------------------------------
 第メイン画面(MainScreen)
  -------------------------------------------------------------------*/
@@ -475,11 +489,8 @@ class _FirstScreenState extends State<FirstScreen> {
                   ),
                   ///GOAL GET UP TIME
                   const Padding(padding: EdgeInsets.all(5),),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        const Icon(Icons.emoji_events, color: Colors.white, size: 35),
-                        Text('GOAL GET UP TIME', style: styleB),
+                  Row(mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[const Icon(Icons.emoji_events, color: Colors.white, size: 35), Text('GOAL GET UP TIME', style: styleB),
                       ]),
                   ///GOAL GET UP TIME BUTTON
                   ElevatedButton(
@@ -514,13 +525,10 @@ class _FirstScreenState extends State<FirstScreen> {
               const Padding(padding: EdgeInsets.all(20),),
               const Icon(Icons.calendar_month, color: Colors.red, size: 35),
               const Padding(padding: EdgeInsets.all(10),),
-                   Container(
-                    width: 50,
-                  child: TextField(
-                  controller: _controllergoalday,
-                  readOnly: true,
-                  enabled: false,
-                  style: const TextStyle(fontSize: 30.0, color: Colors.white, decoration: TextDecoration.none),
+                   SizedBox(width: 50, child: TextField(controller: _controllergoalday,
+                       readOnly: true,
+                       enabled: false,
+                       style: const TextStyle(fontSize: 30.0, color: Colors.white, decoration: TextDecoration.none),
                 ),
               ),
               Text('  DAYS TO GO', style: styleB,),
@@ -689,116 +697,173 @@ class _FirstScreenState extends State<FirstScreen> {
 第一画面ロード(FirstScreen)
  -------------------------------------------------------------------*/
   void loadPref() async {
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      setState(() {
-        //アラームボタン
-        alarm_flg = prefs.getBool('Alarmonoff') ?? true;
-        primaryColor = alarm_flg ? Colors.orange : Colors.blue;
-        strStarstop = alarm_flg ? 'START' : 'STOP';
-        //起床時間の取得
-        String? strGetuptime = prefs.getString('getuptime');
-        if (strGetuptime != null && strGetuptime != "") {
-          _getuptime = DateTime.parse(strGetuptime);
-        } else {
-          _getuptime = DateTime.utc(0, 0, 0, 6, 0);
-          SharedPreferences.getInstance().then((SharedPreferences prefs) {
-            prefs.setString('getuptime', _getuptime.toString());
-          });
-        };
-        //間隔の取得
-        if (prefs.getString('kankaku') != null &&
-            prefs.getString('kankaku') != "") {
-          intMinKankaku = int.parse(prefs.getString('kankaku')!);
-          _controllerTitle.text = 'Get up early by ' +
-              (prefs.getString('kankaku') ?? '') +
-              ' minute every day';
-        } else {
-          _controllerTitle.text = 'Get up early by 1 minute every day';
-          SharedPreferences.getInstance().then((SharedPreferences prefs) {
-            prefs.setString('kankaku', "1");
-          });
-        }
-        //目標までの日にち算出
-        int amari = 0;
-        int diffmin;
-        //最終目標の起床時間を取得
-        //明日の起床時刻の取得
-        // String? strGoalgetuptime = prefs.getString('goalgetuptime');
-        // if (strGoalgetuptime != null && strGoalgetuptime != "") {
-        //   _goalgetuptime = DateTime.parse(strGoalgetuptime);
-        // } else {
-        //   _goalgetuptime = DateTime.utc(2016, 5, 1, 5, 30);
-        //   SharedPreferences.getInstance().then((SharedPreferences prefs) {
-        //     prefs.setString('goalgetuptime', _goalgetuptime.toString());
-        //   });
-        // };
-        if (_goalgetuptime != DateTime.utc(0, 0, 0, 0, 0)) {
-          //目標起床時間 - 現在起床時間
-          diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
-          //目標までの時間（分）を間隔（分）で割、目標までの日数を計算する
-          if (intMinKankaku != 0) {
-            _goal_day = diffmin ~/ intMinKankaku;
-            amari = diffmin % intMinKankaku;
-            if (amari != 0) {
-              _goal_day = _goal_day + 1;
-            }
-          }
-          //目標までの日数を保存
-          SharedPreferences.getInstance().then((SharedPreferences prefs) {
-            prefs.setInt('goal_day', _goal_day);
-          });
-          //目標までの日数を画面に表示
-          _controllergoalday.text =
-                _goal_day.toString() ;
-        }
-        //目標睡眠時間の取得
-        DateTime goalsleeptime;
-        String? strGoalsleep = prefs.getString('goalsleeptime');
-        if (strGoalsleep != null && strGoalsleep != "") {
-          goalsleeptime = DateTime.parse(strGoalsleep);
-        } else {
-          goalsleeptime = DateTime.utc(2016, 5, 1, 7, 30);
-          SharedPreferences.getInstance().then((SharedPreferences prefs) {
-            prefs.setString('goalsleeptime', goalsleeptime.toString());
-          });
-        };
-        //目標就寝時刻の算出
-        //目標睡眠時間 - 明日の起床時刻
-        int sleeptimeHour = goalsleeptime.hour;
-        int sleeptimeMin = goalsleeptime.minute;
-        _goal_bedin_time = _getuptime
-            .subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
-        //間隔の取得
-        if (prefs.getString('kankaku') != null &&
-            prefs.getString('kankaku') != "") {
-          intMinKankaku = int.parse(prefs.getString('kankaku')!);
-          _textControllerKankaku.text = prefs.getString('kankaku')!;
-        } else {
-          intMinKankaku = 1;
-          _textControllerKankaku.text = "1";
-          SharedPreferences.getInstance().then((SharedPreferences prefs) {
-            prefs.setString('kankaku', "1");
-          });
-        };
-      });
-    });
-    //アラーム
-    String? strAlarmonoff = await _loadStrSetting("alarmonoff");
-    setState(() {
+    //SharedPreferences.getInstance().then((SharedPreferences prefs) {
+    // setState(() {
+    // //起床時間の取得
+    // String? strGetuptime = prefs.getString('getuptime');
+    // if (strGetuptime != null && strGetuptime != "") {
+    //   _getuptime = DateTime.parse(strGetuptime);
+    // } else {
+    //   _getuptime = DateTime.utc(0, 0, 0, 6, 0);
+    //   SharedPreferences.getInstance().then((SharedPreferences prefs) {
+    //     prefs.setString('getuptime', _getuptime.toString());
+    //   });
+    // };
+    // //間隔の取得
+    // if (prefs.getString('kankaku') != null &&
+    //     prefs.getString('kankaku') != "") {
+    //   intMinKankaku = int.parse(prefs.getString('kankaku')!);
+    //   _controllerTitle.text = 'Get up early by ' +
+    //       (prefs.getString('kankaku') ?? '') +
+    //       ' minute every day';
+    // } else {
+    //   _controllerTitle.text = 'Get up early by 1 minute every day';
+    //   SharedPreferences.getInstance().then((SharedPreferences prefs) {
+    //     prefs.setString('kankaku', "1");
+    //   });
+    // }
+    // //目標までの日にち算出
+    // int amari = 0;
+    // int diffmin;
+    //最終目標の起床時間を取得
+    // String? strGoalgetuptime = prefs.getString('goalgetuptime');
+    // if (strGoalgetuptime != null && strGoalgetuptime != "") {
+    //   _goalgetuptime = DateTime.parse(strGoalgetuptime);
+    // } else {
+    //   _goalgetuptime = DateTime.utc(2016, 5, 1, 5, 30);
+    //   SharedPreferences.getInstance().then((SharedPreferences prefs) {
+    //     prefs.setString('goalgetuptime', _goalgetuptime.toString());
+    //   });
+    // };
+    //   if (_goalgetuptime != DateTime.utc(0, 0, 0, 0, 0)) {
+    //     //目標起床時間 - 現在起床時間
+    //     diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
+    //     //目標までの時間（分）を間隔（分）で割、目標までの日数を計算する
+    //     if (intMinKankaku != 0) {
+    //       _goal_day = diffmin ~/ intMinKankaku;
+    //       amari = diffmin % intMinKankaku;
+    //       if (amari != 0) {
+    //         _goal_day = _goal_day + 1;
+    //       }
+    //     }
+    //     //目標までの日数を保存
+    //     SharedPreferences.getInstance().then((SharedPreferences prefs) {
+    //       prefs.setInt('goal_day', _goal_day);
+    //     });
+    //     //目標までの日数を画面に表示
+    //     _controllergoalday.text =
+    //           _goal_day.toString() ;
+    //   }
+    //   //目標睡眠時間の取得
+    //   DateTime goalsleeptime;
+    //   String? strGoalsleep = prefs.getString('goalsleeptime');
+    //   if (strGoalsleep != null && strGoalsleep != "") {
+    //     goalsleeptime = DateTime.parse(strGoalsleep);
+    //   } else {
+    //     goalsleeptime = DateTime.utc(2016, 5, 1, 7, 30);
+    //     SharedPreferences.getInstance().then((SharedPreferences prefs) {
+    //       prefs.setString('goalsleeptime', goalsleeptime.toString());
+    //     });
+    //   };
+    //   //目標就寝時刻の算出
+    //   //目標睡眠時間 - 明日の起床時刻
+    //   int sleeptimeHour = goalsleeptime.hour;
+    //   int sleeptimeMin = goalsleeptime.minute;
+    //   _goal_bedin_time = _getuptime
+    //       .subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
+    //   //間隔の取得
+    //   if (prefs.getString('kankaku') != null &&
+    //       prefs.getString('kankaku') != "") {
+    //     intMinKankaku = int.parse(prefs.getString('kankaku')!);
+    //     _textControllerKankaku.text = prefs.getString('kankaku')!;
+    //   } else {
+    //     intMinKankaku = 1;
+    //     _textControllerKankaku.text = "1";
+    //     SharedPreferences.getInstance().then((SharedPreferences prefs) {
+    //       prefs.setString('kankaku', "1");
+    //     });
+    //   };
+    // });
+    // });
+    // }
+
+    setState(() async {
+      //起床時間
+      //間隔の取得
+      int? intKankaku = await _loadIntSetting("kankaku");
+      intMinKankaku = intKankaku!;
+      _controllerTitle.text = 'Get up early by $intKankaku minute every day';
+
+      //アラーム
+      String? strAlarmonoff = await _loadStrSetting("alarmonoff");
       if (strAlarmonoff != null && strAlarmonoff.compareTo("X") == 0) {
         alarm_flg = true;
       } else {
         alarm_flg = false;
       }
+      primaryColor = alarm_flg ? Colors.orange : Colors.blue;
+      strStarstop = alarm_flg ? 'START' : 'STOP';
+
+      //目標起床時間
+      String? strGoalgetuptime = await _loadStrSetting("goalgetuptime");
+      if (strGoalgetuptime != null && strGoalgetuptime != "") {
+        _goalgetuptime = DateTime.parse(strGoalgetuptime);
+      }
+       int amari = 0;
+       int diffmin;
+      if (_goalgetuptime != DateTime.utc(0, 0, 0, 0, 0)) {
+        //目標起床時間 - 現在起床時間
+        diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
+        //目標までの時間（分）を間隔（分）で割、目標までの日数を計算する
+        if (intMinKankaku != 0) {
+          _goal_day = diffmin ~/ intMinKankaku;
+          amari = diffmin % intMinKankaku;
+          if (amari != 0) {
+            _goal_day = _goal_day + 1;
+          }
+        }
+        //目標までの日数を保存
+        SharedPreferences.getInstance().then((SharedPreferences prefs) {
+          prefs.setInt('goal_day', _goal_day);
+        });
+        //目標までの日数を画面に表示
+        _controllergoalday.text =
+            _goal_day.toString();
+      }
+      //目標睡眠時間の取得
+      DateTime goalsleeptime;
+      String? strGoalsleep = prefs.getString('goalsleeptime');
+      if (strGoalsleep != null && strGoalsleep != "") {
+        goalsleeptime = DateTime.parse(strGoalsleep);
+      } else {
+        goalsleeptime = DateTime.utc(2016, 5, 1, 7, 30);
+        SharedPreferences.getInstance().then((SharedPreferences prefs) {
+          prefs.setString('goalsleeptime', goalsleeptime.toString());
+        });
+      };
+      //目標就寝時刻の算出
+      //目標睡眠時間 - 明日の起床時刻
+      int sleeptimeHour = goalsleeptime.hour;
+      int sleeptimeMin = goalsleeptime.minute;
+      _goal_bedin_time = _getuptime
+          .subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
+      //間隔の取得
+      if (prefs.getString('kankaku') != null &&
+          prefs.getString('kankaku') != "") {
+        intMinKankaku = int.parse(prefs.getString('kankaku')!);
+        _textControllerKankaku.text = prefs.getString('kankaku')!;
+      } else {
+        intMinKankaku = 1;
+        _textControllerKankaku.text = "1";
+        SharedPreferences.getInstance().then((SharedPreferences prefs) {
+          prefs.setString('kankaku', "1");
+        });
+      };
     });
-    primaryColor = alarm_flg ? Colors.orange : Colors.blue;
-    strStarstop = alarm_flg ? 'START' : 'STOP';
-    //目標起床時間
-    String? strGoalgetuptime = await _loadStrSetting("goalgetuptime");
-    if (strGoalgetuptime != null && strGoalgetuptime != "") {
-      setState(() {_goalgetuptime = DateTime.parse(strGoalgetuptime);});
-    }
   }
+/*------------------------------------------------------------------
+データベースへの保存
+ -------------------------------------------------------------------*/
   void saveData(String status ,String strGetuptime) async {
     String dbPath = await getDatabasesPath();
     String path = p.join(dbPath, 'rireki.db');
@@ -1240,17 +1305,10 @@ class _ThirdScreenState extends State<ThirdScreen> {
         decoration:  const BoxDecoration(
             border: Border(bottom: BorderSide(width: 1.0, color: Colors.grey))),
         child: ListTile(
-            title:  Row(children: <Widget>[
-              Expanded(
-                  child:  Text("STATUS", style:  TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold))),
-               Expanded(
-                  child:  Text("DATE", style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold))),
-               Expanded(
-                  child:  Text("TARGET TIME",
-                      style:  TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold))),
+            title:  Row(children: const <Widget>[
+              Expanded(child:  Text("STATUS", style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+               Expanded(child:  Text("DATE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+               Expanded(child:  Text("TARGET TIME", style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
         ])));
   }
   void getItems() async {

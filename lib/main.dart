@@ -62,8 +62,8 @@ const bool cnsAlarmOff = false;
 bool flgFirstRun = true;
 // const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT getuptime TEXT,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
 // const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,getuptime,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,mpath) values("X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
-const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT ,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
-const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,mpath) values("X" ,"",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
+const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT ,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,goalday INTEGER,mpath TEXT)";
+const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,goalday,mpath) values("X" ,"",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"",0,"mpath/test")';
 
 const String strCnsSqlCreateRireki ="CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)";
 const String strCnsRadDefSound = "DefaultSound";
@@ -168,7 +168,21 @@ void _createRewardedAd() {
       ));
 }
 //設定テーブルにデータ保存
-void _saveSetting(String field ,String value) async {
+void _saveStrSetting(String field ,String value) async {
+  String dbPath = await getDatabasesPath();
+  String path = p.join(dbPath, 'setting.db');
+  Database database = await openDatabase(path, version: 1,
+      onCreate: (Database db, int version) async {
+        await db.execute(strCnsSqlCreateSetting);
+      });
+  String query = 'UPDATE setting set $field = "$value" where id = 1 ';
+  await database.transaction((txn) async {
+    //int id = await txn.rawInsert(query);
+    await txn.rawInsert(query);
+    //   print("insert: $id");
+  });
+}
+void _saveIntSetting(String field ,int value) async {
   String dbPath = await getDatabasesPath();
   String path = p.join(dbPath, 'setting.db');
   Database database = await openDatabase(path, version: 1,
@@ -278,7 +292,6 @@ class _FirstScreenState extends State<FirstScreen> {
   }
   // The callback for our alarm
   static Future<void> callSoundStart() async {
-
     String? strSePath = null;
     strSePath = await loadMusicPath();
 
@@ -506,7 +519,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         onConfirm: (Picker picker, List value) {
                           setState(() => {
                             _goalgetuptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
-                            _saveSetting( 'goalgetuptime',_goalgetuptime.toString()),
+                            _saveStrSetting( 'goalgetuptime',_goalgetuptime.toString()),
                             loadPref(),
                               });
                         },
@@ -586,7 +599,7 @@ class _FirstScreenState extends State<FirstScreen> {
       strStarstop = alarm_flg ? 'START' : 'STOP';
     });
     if (alarm_flg == cnsAlarmOff) {
-      _saveSetting('alarmonoff','');
+      _saveStrSetting('alarmonoff','');
       await alramset();
       strStartdate = DateTime.now().toIso8601String();
       SharedPreferences.getInstance().then((SharedPreferences prefs) {
@@ -594,7 +607,7 @@ class _FirstScreenState extends State<FirstScreen> {
       });
     } else {
       stopTheSound();
-      _saveSetting('alarmonoff','X');
+      _saveStrSetting('alarmonoff','X');
       showDialog(
           context: context,
           builder: (BuildContext context) => AlertDialog(
@@ -823,12 +836,9 @@ class _FirstScreenState extends State<FirstScreen> {
           }
         }
         //目標までの日数を保存
-        SharedPreferences.getInstance().then((SharedPreferences prefs) {
-          prefs.setInt('goal_day', _goal_day);
-        });
+        _saveIntSetting('goalday', _goal_day)
         //目標までの日数を画面に表示
-        _controllergoalday.text =
-            _goal_day.toString();
+        _controllergoalday.text = _goal_day.toString();
       }
       //目標睡眠時間の取得
       DateTime goalsleeptime;

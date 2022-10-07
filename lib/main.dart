@@ -60,10 +60,10 @@ const String cnsGetupStatusF = '0';
 const bool cnsAlarmOn = true;
 const bool cnsAlarmOff = false;
 bool flgFirstRun = true;
-// const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT getuptime TEXT,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
+// const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT ,getuptime TEXT,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
 // const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,getuptime,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,mpath) values("X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
-const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT ,alarmonoff TEXT,kankaku INTEGER,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,goalday INTEGER,mpath TEXT)";
-const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,goalday,mpath) values("X" ,"",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"",0,"mpath/test")';
+const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT,getuptime TEXT ,alarmonoff TEXT,kankaku INTEGER,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,goalday INTEGER,mpath TEXT)";
+const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,getuptime,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,goalday,mpath) values("X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"",0,"mpath/test")';
 
 const String strCnsSqlCreateRireki ="CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)";
 const String strCnsRadDefSound = "DefaultSound";
@@ -602,9 +602,11 @@ class _FirstScreenState extends State<FirstScreen> {
       _saveStrSetting('alarmonoff','');
       await alramset();
       strStartdate = DateTime.now().toIso8601String();
+
       SharedPreferences.getInstance().then((SharedPreferences prefs) {
         prefs.setString('startdate', strStartdate);
       });
+
     } else {
       stopTheSound();
       _saveStrSetting('alarmonoff','X');
@@ -675,13 +677,12 @@ class _FirstScreenState extends State<FirstScreen> {
       _getuptime = _getuptime.subtract(Duration(minutes: intMinKankaku));
       _goal_bedin_time = _goal_bedin_time.subtract(Duration(minutes: intMinKankaku));
     });
-    _savegetuptimepref(_getuptime);
+    _saveStrSetting( 'goalgetuptime',_goalgetuptime.toString());
     //目標までの日数を-1
     _goal_day = _goal_day - 1;
     //目標までの日数を保存
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      prefs.setInt('goal_day', _goal_day);
-    });
+    _saveIntSetting('goal_day',_goal_day);
+
     //目標までの日数を画面に表示
     _controllergoalday.text = 'Until the goal is achieved"${_goal_day.toString()}days';
   }
@@ -885,7 +886,7 @@ class _SecondScreenState extends State<SecondScreen> {
                       onConfirm: (Picker picker, List value) {
                         setState(() => {
                               _goalsleeptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
-                              _savegoalsleeptimepref(_goalsleeptime),
+                          _saveStrSetting('goalsleeptime',_goalsleeptime.toString()),
                             });
                       },
                     ).showModal(context);
@@ -1047,13 +1048,7 @@ class _SecondScreenState extends State<SecondScreen> {
       //   print("insert: $id");
     });
   }
-  //目標睡眠時間保存
-  void _savegoalsleeptimepref(DateTime value) async {
-    //目標睡眠時間保存
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      prefs.setString('goalsleeptime', value.toString());
-    });
-  }
+
   void loadPrefSecond() async {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
       setState(() {

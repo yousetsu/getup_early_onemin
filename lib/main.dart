@@ -842,21 +842,15 @@ class _FirstScreenState extends State<FirstScreen> {
       }
       //目標睡眠時間の取得
       DateTime goalsleeptime;
-      String? strGoalsleep = prefs.getString('goalsleeptime');
+      String? strGoalsleep = await _loadStrSetting("goalsleeptime");
       if (strGoalsleep != null && strGoalsleep != "") {
         goalsleeptime = DateTime.parse(strGoalsleep);
-      } else {
-        goalsleeptime = DateTime.utc(2016, 5, 1, 7, 30);
-        SharedPreferences.getInstance().then((SharedPreferences prefs) {
-          prefs.setString('goalsleeptime', goalsleeptime.toString());
-        });
-      };
+      }
       //目標就寝時刻の算出
       //目標睡眠時間 - 明日の起床時刻
       int sleeptimeHour = goalsleeptime.hour;
       int sleeptimeMin = goalsleeptime.minute;
-      _goal_bedin_time = _getuptime
-          .subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
+      _goal_bedin_time = _getuptime.subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
       //間隔の取得
       if (prefs.getString('kankaku') != null &&
           prefs.getString('kankaku') != "") {

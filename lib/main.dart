@@ -447,7 +447,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         onConfirm: (Picker picker, List value) {
                           setState(() => {
                                 _getuptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
-                                _savegetuptimepref(_getuptime),
+                            _saveStrSetting('getuptime',_getuptime.toString()),
                                 loadPref(),
                               });
                         },
@@ -492,7 +492,7 @@ class _FirstScreenState extends State<FirstScreen> {
                       onFieldSubmitted: (String value) {
                         if (_formKey.currentState?.validate() != null &&
                             _formKey.currentState?.validate() == true) {
-                          _savekankakupref(value);
+                          _saveIntSetting('kankaku',int.parse(value));
                         }
                       },
                       maxLength: 3,
@@ -693,120 +693,15 @@ class _FirstScreenState extends State<FirstScreen> {
     saveData(cnsGetupStatusF,strGetuptime);
   }
   /*------------------------------------------------------------------
-第一画面SAVE(FirstScreen)
- -------------------------------------------------------------------*/
-  //明日の起床時間をセット
-  void _savegetuptimepref(DateTime value) async {
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      prefs.setString('getuptime', value.toString());
-    });
-  }
-  void _savekankakupref(String value) async {
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      prefs.setString('kankaku', value);
-    });
-  }
-  /*------------------------------------------------------------------
 第一画面ロード(FirstScreen)
  -------------------------------------------------------------------*/
   void loadPref() async {
-    //SharedPreferences.getInstance().then((SharedPreferences prefs) {
-    // setState(() {
-    // //起床時間の取得
-    // String? strGetuptime = prefs.getString('getuptime');
-    // if (strGetuptime != null && strGetuptime != "") {
-    //   _getuptime = DateTime.parse(strGetuptime);
-    // } else {
-    //   _getuptime = DateTime.utc(0, 0, 0, 6, 0);
-    //   SharedPreferences.getInstance().then((SharedPreferences prefs) {
-    //     prefs.setString('getuptime', _getuptime.toString());
-    //   });
-    // };
-    // //間隔の取得
-    // if (prefs.getString('kankaku') != null &&
-    //     prefs.getString('kankaku') != "") {
-    //   intMinKankaku = int.parse(prefs.getString('kankaku')!);
-    //   _controllerTitle.text = 'Get up early by ' +
-    //       (prefs.getString('kankaku') ?? '') +
-    //       ' minute every day';
-    // } else {
-    //   _controllerTitle.text = 'Get up early by 1 minute every day';
-    //   SharedPreferences.getInstance().then((SharedPreferences prefs) {
-    //     prefs.setString('kankaku', "1");
-    //   });
-    // }
-    // //目標までの日にち算出
-    // int amari = 0;
-    // int diffmin;
-    //最終目標の起床時間を取得
-    // String? strGoalgetuptime = prefs.getString('goalgetuptime');
-    // if (strGoalgetuptime != null && strGoalgetuptime != "") {
-    //   _goalgetuptime = DateTime.parse(strGoalgetuptime);
-    // } else {
-    //   _goalgetuptime = DateTime.utc(2016, 5, 1, 5, 30);
-    //   SharedPreferences.getInstance().then((SharedPreferences prefs) {
-    //     prefs.setString('goalgetuptime', _goalgetuptime.toString());
-    //   });
-    // };
-    //   if (_goalgetuptime != DateTime.utc(0, 0, 0, 0, 0)) {
-    //     //目標起床時間 - 現在起床時間
-    //     diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
-    //     //目標までの時間（分）を間隔（分）で割、目標までの日数を計算する
-    //     if (intMinKankaku != 0) {
-    //       _goal_day = diffmin ~/ intMinKankaku;
-    //       amari = diffmin % intMinKankaku;
-    //       if (amari != 0) {
-    //         _goal_day = _goal_day + 1;
-    //       }
-    //     }
-    //     //目標までの日数を保存
-    //     SharedPreferences.getInstance().then((SharedPreferences prefs) {
-    //       prefs.setInt('goal_day', _goal_day);
-    //     });
-    //     //目標までの日数を画面に表示
-    //     _controllergoalday.text =
-    //           _goal_day.toString() ;
-    //   }
-    //   //目標睡眠時間の取得
-    //   DateTime goalsleeptime;
-    //   String? strGoalsleep = prefs.getString('goalsleeptime');
-    //   if (strGoalsleep != null && strGoalsleep != "") {
-    //     goalsleeptime = DateTime.parse(strGoalsleep);
-    //   } else {
-    //     goalsleeptime = DateTime.utc(2016, 5, 1, 7, 30);
-    //     SharedPreferences.getInstance().then((SharedPreferences prefs) {
-    //       prefs.setString('goalsleeptime', goalsleeptime.toString());
-    //     });
-    //   };
-    //   //目標就寝時刻の算出
-    //   //目標睡眠時間 - 明日の起床時刻
-    //   int sleeptimeHour = goalsleeptime.hour;
-    //   int sleeptimeMin = goalsleeptime.minute;
-    //   _goal_bedin_time = _getuptime
-    //       .subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
-    //   //間隔の取得
-    //   if (prefs.getString('kankaku') != null &&
-    //       prefs.getString('kankaku') != "") {
-    //     intMinKankaku = int.parse(prefs.getString('kankaku')!);
-    //     _textControllerKankaku.text = prefs.getString('kankaku')!;
-    //   } else {
-    //     intMinKankaku = 1;
-    //     _textControllerKankaku.text = "1";
-    //     SharedPreferences.getInstance().then((SharedPreferences prefs) {
-    //       prefs.setString('kankaku', "1");
-    //     });
-    //   };
-    // });
-    // });
-    // }
-
     setState(() async {
       //起床時間
       //間隔の取得
       int? intKankaku = await _loadIntSetting("kankaku");
       intMinKankaku = intKankaku!;
       _controllerTitle.text = 'Get up early by $intKankaku minute every day';
-
       //アラーム
       String? strAlarmonoff = await _loadStrSetting("alarmonoff");
       if (strAlarmonoff != null && strAlarmonoff.compareTo("X") == 0) {
@@ -852,9 +747,7 @@ class _FirstScreenState extends State<FirstScreen> {
       int sleeptimeMin = goalsleeptime.minute;
       _goal_bedin_time = _getuptime.subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
       //間隔の取得
-
       intMinKankaku = (await _loadIntSetting("kankaku"))!;
-
     });
   }
 /*------------------------------------------------------------------

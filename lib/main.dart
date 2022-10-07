@@ -62,7 +62,7 @@ const bool cnsAlarmOff = false;
 bool flgFirstRun = true;
 // const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT getuptime TEXT,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
 // const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,getuptime,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,mpath) values("X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
-const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT ,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,goalday INTEGER,mpath TEXT)";
+const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT ,alarmonoff TEXT,kankaku INTEGER,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,goalday INTEGER,mpath TEXT)";
 const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,goalday,mpath) values("X" ,"",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"",0,"mpath/test")';
 
 const String strCnsSqlCreateRireki ="CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)";
@@ -836,12 +836,12 @@ class _FirstScreenState extends State<FirstScreen> {
           }
         }
         //目標までの日数を保存
-        _saveIntSetting('goalday', _goal_day)
+        _saveIntSetting('goalday', _goal_day);
         //目標までの日数を画面に表示
         _controllergoalday.text = _goal_day.toString();
       }
       //目標睡眠時間の取得
-      DateTime goalsleeptime;
+      DateTime goalsleeptime = DateTime.utc(0, 0, 0, 0, 0);
       String? strGoalsleep = await _loadStrSetting("goalsleeptime");
       if (strGoalsleep != null && strGoalsleep != "") {
         goalsleeptime = DateTime.parse(strGoalsleep);
@@ -852,17 +852,9 @@ class _FirstScreenState extends State<FirstScreen> {
       int sleeptimeMin = goalsleeptime.minute;
       _goal_bedin_time = _getuptime.subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
       //間隔の取得
-      if (prefs.getString('kankaku') != null &&
-          prefs.getString('kankaku') != "") {
-        intMinKankaku = int.parse(prefs.getString('kankaku')!);
-        _textControllerKankaku.text = prefs.getString('kankaku')!;
-      } else {
-        intMinKankaku = 1;
-        _textControllerKankaku.text = "1";
-        SharedPreferences.getInstance().then((SharedPreferences prefs) {
-          prefs.setString('kankaku', "1");
-        });
-      };
+
+      intMinKankaku = (await _loadIntSetting("kankaku"))!;
+
     });
   }
 /*------------------------------------------------------------------

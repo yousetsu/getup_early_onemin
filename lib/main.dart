@@ -271,7 +271,6 @@ class _FirstScreenState extends State<FirstScreen> {
   String strStarstop = '開始';
 
   //現在日付
-  late String strStartdate;
   final TextStyle styleA = const TextStyle(fontSize: 28.0, color: Colors.white,);
   final TextStyle styleB = const TextStyle(fontSize: 15.0, color: Colors.white);
   @override
@@ -519,7 +518,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         onConfirm: (Picker picker, List value) {
                           setState(() => {
                             _goalgetuptime = DateTime.utc(2016, 5, 1, value[0], value[1], 0),
-                            _saveStrSetting( 'goalgetuptime',_goalgetuptime.toString()),
+                            _saveStrSetting('goalgetuptime',_goalgetuptime.toString()),
                             loadPref(),
                               });
                         },
@@ -601,12 +600,6 @@ class _FirstScreenState extends State<FirstScreen> {
     if (alarm_flg == cnsAlarmOff) {
       _saveStrSetting('alarmonoff','');
       await alramset();
-      strStartdate = DateTime.now().toIso8601String();
-
-      SharedPreferences.getInstance().then((SharedPreferences prefs) {
-        prefs.setString('startdate', strStartdate);
-      });
-
     } else {
       stopTheSound();
       _saveStrSetting('alarmonoff','X');
@@ -1103,9 +1096,9 @@ class _ThirdScreenState extends State<ThirdScreen> {
 
   void _showRewardedAd() {
     cntReward = cntReward + 1;
-    _saveRewardCnt(cntReward);
+    _saveIntSetting('rewardcnt', cntReward);
     if (cntReward >= 5) {
-      _saveRewardCnt(0);
+      _saveIntSetting('rewardcnt', 0);
       if (_rewardedAd == null) {
        // print('Warning: attempt to show rewarded before loaded.');
         return;
@@ -1142,12 +1135,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
     });
     cntReward = 0;
   }
-  //リワードカウント保存
-  void _saveRewardCnt(int value) async {
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      prefs.setInt('rewardcnt', value);
-    });
-  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

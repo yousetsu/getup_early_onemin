@@ -634,8 +634,7 @@ class _FirstScreenState extends State<FirstScreen> {
                     actions: <Widget>[
                       TextButton(
                           child: const Text('OK'),
-                          onPressed: () =>
-                              Navigator.pop<String>(context, 'Ok')),
+                          onPressed: () => Navigator.pop<String>(context, 'Ok')),
                     ],
                   )).then<void>((value) => resultSuccess(value));
           break;
@@ -648,8 +647,7 @@ class _FirstScreenState extends State<FirstScreen> {
                     actions: <Widget>[
                       TextButton(
                           child: const Text('OK'),
-                          onPressed: () =>
-                              Navigator.pop<String>(context, 'Ok')),
+                          onPressed: () => Navigator.pop<String>(context, 'Ok')),
                     ],
                   )).then<void>((value) => resultFailure(value));
           break;
@@ -705,7 +703,6 @@ class _FirstScreenState extends State<FirstScreen> {
       }
       primaryColor = alarm_flg ? Colors.orange : Colors.blue;
       strStarstop = alarm_flg ? 'START' : 'STOP';
-
       //目標起床時間
       String? strGoalgetuptime = await _loadStrSetting("goalgetuptime");
       if (strGoalgetuptime != null && strGoalgetuptime != "") {
@@ -886,7 +883,6 @@ class _SecondScreenState extends State<SecondScreen> {
                   },
                 ),
                 const Padding(padding: EdgeInsets.all(20.0),),
-
                 const Divider(color: Colors.white, thickness: 1.0,),
                 //アラーム選択ボタン
                 Row(
@@ -1041,32 +1037,19 @@ class _SecondScreenState extends State<SecondScreen> {
       //   print("insert: $id");
     });
   }
-
   void loadPrefSecond() async {
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      setState(() {
+      setState(() async {
         //起床時間の取得
-        String? strGetuptime = prefs.getString('getuptime');
+        String? strGetuptime = await _loadStrSetting('getuptime');
         if (strGetuptime != null && strGetuptime != "") {
           _getuptime = DateTime.parse(strGetuptime);
-        } else {
-          _getuptime = DateTime.utc(2016, 5, 1, 6, 0);
-          SharedPreferences.getInstance().then((SharedPreferences prefs) {
-            prefs.setString('getuptime', _getuptime.toString());
-          });
-        };
+        }
         //目標睡眠時間の取得
-        String? strGoalsleep = prefs.getString('goalsleeptime');
+        String? strGoalsleep = await _loadStrSetting('goalsleeptime');
         if (strGoalsleep != null && strGoalsleep != "") {
           _goalsleeptime = DateTime.parse(strGoalsleep);
-        } else {
-          _goalsleeptime = DateTime.utc(2016, 5, 1, 6, 0);
-          SharedPreferences.getInstance().then((SharedPreferences prefs) {
-            prefs.setString('goalsleeptime', _goalsleeptime.toString());
-          });
-        };
+        }
       });
-    });
   }
 }
 /*------------------------------------------------------------------

@@ -688,43 +688,54 @@ class _FirstScreenState extends State<FirstScreen> {
 第一画面ロード(FirstScreen)
  -------------------------------------------------------------------*/
   void loadPref() async {
-    setState(() async {
-      //起床時間
-      //間隔の取得
-      int? intKankaku = await _loadIntSetting("kankaku");
+    //起床時間
+    String? strGetuptime = await _loadStrSetting('getuptime');
+    if (strGetuptime != null && strGetuptime != "") {
+      setState(()  {_getuptime = DateTime.parse(strGetuptime);});
+    }
+
+    //間隔の取得
+    int? intKankaku = await _loadIntSetting("kankaku");
+    setState(()  {
       intMinKankaku = intKankaku!;
       _controllerTitle.text = 'Get up early by $intKankaku minute every day';
-      //アラーム
-      String? strAlarmonoff = await _loadStrSetting("alarmonoff");
+    });
+    //アラーム
+    String? strAlarmonoff = await _loadStrSetting("alarmonoff");
+    setState(()  {
       if (strAlarmonoff != null && strAlarmonoff.compareTo("X") == 0) {
         alarm_flg = true;
       } else {
         alarm_flg = false;
       }
+    });
+    setState(()  {
       primaryColor = alarm_flg ? Colors.orange : Colors.blue;
       strStarstop = alarm_flg ? 'START' : 'STOP';
+    });
       //目標起床時間
       String? strGoalgetuptime = await _loadStrSetting("goalgetuptime");
       if (strGoalgetuptime != null && strGoalgetuptime != "") {
-        _goalgetuptime = DateTime.parse(strGoalgetuptime);
+        setState(()  {_goalgetuptime = DateTime.parse(strGoalgetuptime);});
       }
        int amari = 0;
        int diffmin;
+
       if (_goalgetuptime != DateTime.utc(0, 0, 0, 0, 0)) {
         //目標起床時間 - 現在起床時間
         diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
         //目標までの時間（分）を間隔（分）で割、目標までの日数を計算する
         if (intMinKankaku != 0) {
-          _goal_day = diffmin ~/ intMinKankaku;
+          setState(()  {_goal_day = diffmin ~/ intMinKankaku;});
           amari = diffmin % intMinKankaku;
           if (amari != 0) {
-            _goal_day = _goal_day + 1;
+            setState(()  {_goal_day = _goal_day + 1;});
           }
         }
         //目標までの日数を保存
         _saveIntSetting('goalday', _goal_day);
         //目標までの日数を画面に表示
-        _controllergoalday.text = _goal_day.toString();
+        setState(() {_controllergoalday.text = _goal_day.toString();});
       }
       //目標睡眠時間の取得
       DateTime goalsleeptime = DateTime.utc(0, 0, 0, 0, 0);
@@ -736,10 +747,10 @@ class _FirstScreenState extends State<FirstScreen> {
       //目標睡眠時間 - 明日の起床時刻
       int sleeptimeHour = goalsleeptime.hour;
       int sleeptimeMin = goalsleeptime.minute;
+      setState(() {
       _goal_bedin_time = _getuptime.subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
-      //間隔の取得
-      intMinKankaku = (await _loadIntSetting("kankaku"))!;
-    });
+      });
+
   }
 /*------------------------------------------------------------------
 データベースへの保存

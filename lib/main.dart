@@ -672,7 +672,7 @@ class _FirstScreenState extends State<FirstScreen> {
     //目標までの日数を-1
     _goal_day = _goal_day - 1;
     //目標までの日数を保存
-    _saveIntSetting('goal_day',_goal_day);
+    _saveIntSetting('goalday',_goal_day);
 
     //目標までの日数を画面に表示
     _controllergoalday.text = 'Until the goal is achieved"${_goal_day.toString()}days';

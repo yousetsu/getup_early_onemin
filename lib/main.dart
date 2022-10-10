@@ -487,6 +487,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         if (_formKey.currentState?.validate() != null &&
                             _formKey.currentState?.validate() == true) {
                           _saveIntSetting('kankaku',int.parse(value));
+                          loadPref();
                         }
                       },
                       maxLength: 3,

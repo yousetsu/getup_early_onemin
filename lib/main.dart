@@ -124,7 +124,6 @@ Future<void> _configureLocalTimeZone() async {
 //初回起動分の処理
 Future<void> _firstrun() async {
   String dbpath = await getDatabasesPath();
-
   //履歴テーブル作成
   String path = p.join(dbpath, "rireki.db");
   Database database = await openDatabase(path, version: 1,
@@ -455,12 +454,8 @@ class _FirstScreenState extends State<FirstScreen> {
                   ),
                   ///INTERVAL
                   const Padding(padding: EdgeInsets.all(5.0),),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        const Icon(Icons.watch_later, color: Colors.white, size: 35),
-                        Text('INTERVAL(Minutes)', style: styleB),
-                      ]),
+                  Row(mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[const Icon(Icons.watch_later, color: Colors.white, size: 35), Text('INTERVAL(Minutes)', style: styleB),]),
                   Container(
                     padding: const EdgeInsets.all(5.0),
                     alignment: Alignment.bottomCenter,
@@ -626,8 +621,7 @@ class _FirstScreenState extends State<FirstScreen> {
     setState(() {
       switch (value) {
         case 'Yes':
-          showDialog(
-              context: context,
+          showDialog(context: context,
               builder: (BuildContext context) => AlertDialog(
                     title: const Text("Confirm"),
                     content: const Text("Move forward tomorrow's wake-up time"),
@@ -639,10 +633,8 @@ class _FirstScreenState extends State<FirstScreen> {
                   )).then<void>((value) => resultSuccess(value));
           break;
         case 'No':
-          showDialog(
-              context: context,
-              builder: (BuildContext context) => AlertDialog(
-                    title: const Text("Confirm"),
+          showDialog(context: context,
+              builder: (BuildContext context) => AlertDialog(title: const Text("Confirm"),
                     content: const Text("Re-challenge tomorrow at the same time!"),
                     actions: <Widget>[
                       TextButton(
@@ -670,12 +662,12 @@ class _FirstScreenState extends State<FirstScreen> {
     });
     _saveStrSetting( 'goalgetuptime',_goalgetuptime.toString());
     //目標までの日数を-1
-    _goal_day = _goal_day - 1;
+    setState(() {_goal_day = _goal_day - 1;});
     //目標までの日数を保存
     _saveIntSetting('goalday',_goal_day);
 
     //目標までの日数を画面に表示
-    _controllergoalday.text = 'Until the goal is achieved"${_goal_day.toString()}days';
+    setState(() {_controllergoalday.text = 'Until the goal is achieved"${_goal_day.toString()}days';});
   }
   //早起き失敗
   void resultFailure(String value) {
@@ -698,7 +690,8 @@ class _FirstScreenState extends State<FirstScreen> {
     int? intKankaku = await _loadIntSetting("kankaku");
     setState(()  {
       intMinKankaku = intKankaku!;
-      _controllerTitle.text = 'Get up early by $intKankaku minute every day';
+      _textControllerKankaku.text = intMinKankaku.toString();
+      _controllerTitle.text = 'Get up early by $intMinKankaku minute every day';
     });
     //アラーム
     String? strAlarmonoff = await _loadStrSetting("alarmonoff");
@@ -1049,18 +1042,16 @@ class _SecondScreenState extends State<SecondScreen> {
     });
   }
   void loadPrefSecond() async {
-      setState(() async {
-        //起床時間の取得
-        String? strGetuptime = await _loadStrSetting('getuptime');
-        if (strGetuptime != null && strGetuptime != "") {
-          _getuptime = DateTime.parse(strGetuptime);
-        }
-        //目標睡眠時間の取得
-        String? strGoalsleep = await _loadStrSetting('goalsleeptime');
-        if (strGoalsleep != null && strGoalsleep != "") {
-          _goalsleeptime = DateTime.parse(strGoalsleep);
-        }
-      });
+    //起床時間の取得
+    String? strGetuptime = await _loadStrSetting('getuptime');
+    if (strGetuptime != null && strGetuptime != "") {
+      setState(()  {_getuptime = DateTime.parse(strGetuptime);});
+    }
+    //目標睡眠時間の取得
+    String? strGoalsleep = await _loadStrSetting('goalsleeptime');
+    if (strGoalsleep != null && strGoalsleep != "") {
+      setState(()  {_goalsleeptime = DateTime.parse(strGoalsleep);});
+    }
   }
 }
 /*------------------------------------------------------------------

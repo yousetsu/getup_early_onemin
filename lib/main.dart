@@ -686,7 +686,6 @@ class _FirstScreenState extends State<FirstScreen> {
     if (strGetuptime != null && strGetuptime != "") {
       setState(()  {_getuptime = DateTime.parse(strGetuptime);});
     }
-
     //間隔の取得
     int? intKankaku = await _loadIntSetting("kankaku");
     setState(()  {
@@ -744,7 +743,6 @@ class _FirstScreenState extends State<FirstScreen> {
       setState(() {
       _goal_bedin_time = _getuptime.subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
       });
-
   }
 /*------------------------------------------------------------------
 データベースへの保存
@@ -752,7 +750,6 @@ class _FirstScreenState extends State<FirstScreen> {
   void saveData(String status ,String strGetuptime) async {
     String dbPath = await getDatabasesPath();
     String path = p.join(dbPath, 'rireki.db');
-
     String strnowdate = DateTime.now().toIso8601String();
 
     Database database = await openDatabase(path, version: 1,
@@ -783,7 +780,6 @@ class _SecondScreenState extends State<SecondScreen> {
   final TextStyle styleB = const TextStyle(fontSize: 15.0, color: Colors.white);
   DateTime _goalsleeptime = DateTime.utc(0, 0, 0);
   DateTime _getuptime = DateTime.utc(0, 0, 0);
-  //int intMinKankaku = 1;
   String? strSelectMusicName = "";
   bool isEnable = false;
   String? _type = '';
@@ -1078,6 +1074,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
     getItems();
     _createRewardedAd();
     _loadPrefRewardCnt();
+
   }
 
   void _showRewardedAd() {
@@ -1113,13 +1110,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
     }
   }
   void _loadPrefRewardCnt() async {
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      setState(() {
-        //リワードカウントの取得
-        cntReward =  prefs.getInt('rewardcnt') ?? 0;
-      });
-    });
-    cntReward = 0;
+    cntReward = await _loadIntSetting('rewardcnt') ?? 0;
   }
 
   @override

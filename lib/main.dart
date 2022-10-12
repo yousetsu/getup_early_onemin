@@ -428,7 +428,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         Text('TOMMOROW GET UP TIME', style: styleB),
                       ]),
                   ElevatedButton(
-                    child: Text(DateFormat.Hm().format(_getuptime), style: TextStyle(fontSize: 35),),
+                    child: Text(DateFormat.Hm().format(_getuptime), style: const TextStyle(fontSize: 35),),
                     style: ElevatedButton.styleFrom(
                       primary: Colors.lightBlueAccent,
                       onPrimary: Colors.white,
@@ -865,7 +865,7 @@ class _SecondScreenState extends State<SecondScreen> {
             ],),
                 ElevatedButton(
                   child: Text(DateFormat.Hm().format(_goalsleeptime), style: TextStyle(fontSize: 40),),
-                  style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: EdgeInsets.symmetric(vertical: 10, horizontal: 80),),
+                  style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),),
                   onPressed: () async {
                     Picker(
                       adapter: DateTimePickerAdapter(

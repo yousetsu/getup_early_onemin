@@ -864,7 +864,6 @@ class _SecondScreenState extends State<SecondScreen> {
               Text('SLEEP TIME', style: styleA,),
             ],),
                 ElevatedButton(
-                  child: Text(DateFormat.Hm().format(_goalsleeptime), style: TextStyle(fontSize: 40),),
                   style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),),
                   onPressed: () async {
                     Picker(
@@ -881,6 +880,7 @@ class _SecondScreenState extends State<SecondScreen> {
                       },
                     ).showModal(context);
                   },
+                  child: Text(style: const TextStyle(fontSize: 40),DateFormat.Hm().format(_goalsleeptime) ),
                 ),
                 const Padding(padding: EdgeInsets.all(20.0),),
                 const Divider(color: Colors.white, thickness: 1.0,),

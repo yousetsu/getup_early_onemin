@@ -712,7 +712,6 @@ class _FirstScreenState extends State<FirstScreen> {
       }
        int amari = 0;
        int diffmin;
-
       if (_goalgetuptime != DateTime.utc(0, 0, 0, 0, 0)) {
         //目標起床時間 - 現在起床時間
         diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
@@ -915,9 +914,9 @@ class _SecondScreenState extends State<SecondScreen> {
         Text('Alarm Select', style: styleB,),
       ]),
                 ElevatedButton(
-                  child: const Text('Alarm Select', style: TextStyle(fontSize: 25),),
                   style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding:const  EdgeInsets.symmetric(vertical: 10, horizontal: 60),),
                    onPressed: !isEnable ? null :() async {alarmfileselect();},
+                  child: const Text('Alarm Select', style: TextStyle(fontSize: 25),),
                 ),
                const Padding(padding: EdgeInsets.all(10.0),),
                 //アラーム選択ファイル
@@ -980,9 +979,7 @@ class _SecondScreenState extends State<SecondScreen> {
     }else{
       _handleRadio(strCnsRadDefSound);
     }
-    setState(() {
-      strSelectMusicName = strMusicName;
-    });
+    setState(() {strSelectMusicName = strMusicName;});
   }
   //ラジオボタン選択時の処理
   void _handleRadio(String? e){

@@ -428,12 +428,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         Text('TOMMOROW GET UP TIME', style: styleB),
                       ]),
                   ElevatedButton(
-                    child: Text(DateFormat.Hm().format(_getuptime), style: const TextStyle(fontSize: 35),),
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.lightBlueAccent,
-                      onPrimary: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 80),
-                    ),
+                    style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 80),),
                     onPressed: () async {
                       Picker(
                         adapter: DateTimePickerAdapter(
@@ -450,6 +445,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         },
                       ).showModal(context);
                     },
+                    child: Text(DateFormat.Hm().format(_getuptime), style: const TextStyle(fontSize: 35),)
                   ),
                   ///INTERVAL
                   const Padding(padding: EdgeInsets.all(5.0),),

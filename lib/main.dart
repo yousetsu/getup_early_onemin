@@ -59,14 +59,14 @@ const String cnsGetupStatusF = '0';
 const bool cnsAlarmOn = true;
 const bool cnsAlarmOff = false;
 bool flgFirstRun = true;
-// const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT ,getuptime TEXT,alarmonoff TEXT,kankaku TEXT,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,mpath TEXT)";
-// const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,getuptime,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,mpath) values("X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"","mpath/test")';
+//SQL
 const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT,getuptime TEXT ,alarmonoff TEXT,kankaku INTEGER,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,goalday INTEGER,mpath TEXT)";
-const String strCnsSqlInsDefSetting = 'INSERT INTO setting(firstrun,getuptime,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,goalday,mpath) values("X" ,"2016-05-01 07:00:00.000Z","",1,"2016-05-01 06:00:00.000Z","2016-05-01 07:30:00.000Z",0,"",0,"mpath/test")';
+const String strCnsSqlInsDefSetting = "INSERT INTO setting(firstrun,getuptime,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,goalday,mpath) values('X' ,'2016-05-01 07:00:00.000Z','',0,'2016-05-01 06:00:00.000Z','2016-05-01 07:30:00.000Z',0,'',0,'mpath/test')";
 
 const String strCnsSqlCreateRireki ="CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)";
 const String strCnsRadDefSound = "DefaultSound";
 const String strCnsRadSelMusic = "SelectMusic";
+
 
 //広告ID
 //test
@@ -173,7 +173,7 @@ void _saveStrSetting(String field ,String value) async {
       onCreate: (Database db, int version) async {
         await db.execute(strCnsSqlCreateSetting);
       });
-  String query = 'UPDATE setting set $field = "$value" where id = 1 ';
+  String query = "UPDATE setting set $field = '$value' where id = 1 ";
   await database.transaction((txn) async {
     //int id = await txn.rawInsert(query);
     await txn.rawInsert(query);
@@ -187,7 +187,7 @@ void _saveIntSetting(String field ,int value) async {
       onCreate: (Database db, int version) async {
         await db.execute(strCnsSqlCreateSetting);
       });
-  String query = 'UPDATE setting set $field = "$value" where id = 1 ';
+  String query = "UPDATE setting set $field = '$value' where id = 1 ";
   await database.transaction((txn) async {
     //int id = await txn.rawInsert(query);
     await txn.rawInsert(query);
@@ -202,7 +202,7 @@ Future<String?> _loadStrSetting(String field) async{
       onCreate: (Database db, int version) async {
         await db.execute(strCnsSqlCreateSetting);
       });
-  List<Map> result = await database.rawQuery('SELECT $field From setting where id = 1 ');
+  List<Map> result = await database.rawQuery("SELECT $field From setting where id = 1 ");
   for (Map item in result) {
     strValue = item[field].toString();
   }
@@ -216,7 +216,7 @@ Future<int?> _loadIntSetting(String field) async{
       onCreate: (Database db, int version) async {
         await db.execute(strCnsSqlCreateSetting);
       });
-  List<Map> result = await database.rawQuery('SELECT $field From setting where id = 1 ');
+  List<Map> result = await database.rawQuery("SELECT $field From setting where id = 1 ");
   for (Map item in result) {
     intValue = item[field];
   }
@@ -1055,7 +1055,6 @@ class ThirdScreen extends StatefulWidget {
   State<ThirdScreen> createState() =>  _ThirdScreenState();
 
 }
-
 class _ThirdScreenState extends State<ThirdScreen> {
   List<Widget> _items = <Widget>[];
   //広告カウント
@@ -1066,9 +1065,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
     getItems();
     _createRewardedAd();
     _loadPrefRewardCnt();
-
   }
-
   void _showRewardedAd() {
     cntReward = cntReward + 1;
     _saveIntSetting('rewardcnt', cntReward);

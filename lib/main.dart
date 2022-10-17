@@ -60,8 +60,8 @@ const bool cnsAlarmOn = true;
 const bool cnsAlarmOff = false;
 bool flgFirstRun = true;
 //SQL
-const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT,getuptime TEXT ,alarmonoff TEXT,kankaku INTEGER,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,goalday INTEGER,mpath TEXT)";
-const String strCnsSqlInsDefSetting = "INSERT INTO setting(firstrun,getuptime,alarmonoff,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,goalday,mpath) values('X' ,'2016-05-01 07:00:00.000Z','',0,'2016-05-01 06:00:00.000Z','2016-05-01 07:30:00.000Z',0,'',0,'mpath/test')";
+const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT,getuptime TEXT,alarmon TEXT,kankaku INTEGER,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,goalday INTEGER,mpath TEXT)";
+const String strCnsSqlInsDefSetting = "INSERT INTO setting(firstrun,getuptime,alarmon,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,goalday,mpath) values('X' ,'2016-05-01 07:00:00.000Z','',1,'2016-05-01 06:00:00.000Z','2016-05-01 07:30:00.000Z',0,'',0,'mpath/test')";
 
 const String strCnsSqlCreateRireki ="CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)";
 const String strCnsRadDefSound = "DefaultSound";
@@ -273,7 +273,7 @@ class _FirstScreenState extends State<FirstScreen> {
   final TextStyle styleB = const TextStyle(fontSize: 15.0, color: Colors.white);
   @override
   void initState() {
-    _getuptime = DateTime.now();
+   // _getuptime = DateTime.now();
     super.initState();
     AndroidAlarmManager.initialize();
     loadPref();
@@ -585,15 +585,15 @@ class _FirstScreenState extends State<FirstScreen> {
     //void buttonPressed() {
     alarm_flg = !alarm_flg;
     setState(() {
-      primaryColor = alarm_flg ? Colors.orange : Colors.blue;
-      strStarstop = alarm_flg ? 'START' : 'STOP';
+      primaryColor = alarm_flg ?  Colors.blue:Colors.orange;
+      strStarstop = alarm_flg ?  'STOP':'START';
     });
-    if (alarm_flg == cnsAlarmOff) {
-      _saveStrSetting('alarmonoff','');
+    if (alarm_flg == cnsAlarmOn) {
+      _saveStrSetting('alarmon','X');
       await alramset();
     } else {
       stopTheSound();
-      _saveStrSetting('alarmonoff','X');
+      _saveStrSetting('alarmon','');
       showDialog(
           context: context,
           builder: (BuildContext context) => AlertDialog(
@@ -689,17 +689,17 @@ class _FirstScreenState extends State<FirstScreen> {
       _controllerTitle.text = 'Get up early by $intMinKankaku minute every day';
     });
     //アラーム
-    String? strAlarmonoff = await _loadStrSetting("alarmonoff");
+    String? strAlarmon = await _loadStrSetting("alarmon");
     setState(()  {
-      if (strAlarmonoff != null && strAlarmonoff.compareTo("X") == 0) {
+      if (strAlarmon != null && strAlarmon.compareTo("X") == 0) {
         alarm_flg = true;
       } else {
         alarm_flg = false;
       }
     });
     setState(()  {
-      primaryColor = alarm_flg ? Colors.orange : Colors.blue;
-      strStarstop = alarm_flg ? 'START' : 'STOP';
+      primaryColor = alarm_flg ? Colors.blue : Colors.orange;
+      strStarstop = alarm_flg ? 'STOP' : 'START';
     });
       //目標起床時間
       String? strGoalgetuptime = await _loadStrSetting("goalgetuptime");
@@ -782,7 +782,7 @@ class _SecondScreenState extends State<SecondScreen> {
   final BannerAd myBanner = BannerAd(
     adUnitId : strCnsBannerID,
     size: AdSize.banner,
-    request: AdRequest(),
+    request: const AdRequest(),
     listener: BannerAdListener(
       onAdLoaded: (Ad ad) => print('バナー広告がロードされました'),
       // Called when an ad request failed.

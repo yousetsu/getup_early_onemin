@@ -165,6 +165,9 @@ void _createRewardedAd() {
         },
       ));
 }
+//-------------------------------------------------------------
+//   DB処理
+//-------------------------------------------------------------
 //設定テーブルにデータ保存
 void _saveStrSetting(String field ,String value) async {
   String dbPath = await getDatabasesPath();
@@ -290,7 +293,7 @@ class _FirstScreenState extends State<FirstScreen> {
   // The callback for our alarm
   static Future<void> callSoundStart() async {
     String? strSePath = null;
-    strSePath = await loadMusicPath();
+    strSePath = await _loadStrSetting('mpath');
 
     _player = AudioPlayer();
     final session = await AudioSession.instance;
@@ -302,20 +305,6 @@ class _FirstScreenState extends State<FirstScreen> {
       await _player.setAsset('assets/alarm.mp3');
     }
     await _player.play();
-  }
-  static Future<String?> loadMusicPath() async{
-    String? strMusicPath = "";
-    String dbpath =  await getDatabasesPath();
-    String path = p.join(dbpath, "setting.db");
-    Database database = await openDatabase(path, version: 1,
-        onCreate: (Database db, int version) async {
-          await db.execute(strCnsSqlCreateSetting);});
-    List<Map> result = await database
-        .rawQuery('select mpath from setting  where id = 1');
-    for (Map item in result) {
-      strMusicPath = item['mpath'].toString();
-    }
-    return strMusicPath;
   }
   //アラームのセット
   Future<void> alramset() async {

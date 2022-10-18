@@ -972,7 +972,7 @@ class _SecondScreenState extends State<SecondScreen> {
       _type = e;
       if(e == strCnsRadDefSound){
         isEnable = false;
-        _saveAlarmMusic("");
+        _saveStrSetting('mpath',"");
         strSelectMusicName = "Defualt Sound";
       }else{
         isEnable = true;
@@ -998,26 +998,11 @@ class _SecondScreenState extends State<SecondScreen> {
         setState(() {
           strSelectMusicName = srtName;
         });
-        _saveAlarmMusic(strSePath);
+        _saveStrSetting('mpath',strSePath);
       } catch (e) {
         print(e);
       }
     }
-  }
-  //音楽ファイルパスを保存
-  void _saveAlarmMusic(String value) async {
-    String dbPath = await getDatabasesPath();
-    String path = p.join(dbPath, 'setting.db');
-    Database database = await openDatabase(path, version: 1,
-        onCreate: (Database db, int version) async {
-          await db.execute(strCnsSqlCreateSetting);
-        });
-    String query = 'UPDATE setting set mpath = "$value" where id = 1 ';
-    await database.transaction((txn) async {
-      //int id = await txn.rawInsert(query);
-      await txn.rawInsert(query);
-      //   print("insert: $id");
-    });
   }
   void loadPrefSecond() async {
     //起床時間の取得

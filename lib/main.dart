@@ -840,9 +840,9 @@ class _SecondScreenState extends State<SecondScreen> {
     final AdWidget adWidget = AdWidget(ad: myBanner);
     final Container adContainer = Container(
       alignment: Alignment.center,
-      child: adWidget,
       width: myBanner.size.width.toDouble(),
       height: myBanner.size.height.toDouble(),
+      child: adWidget,
     );
     return Scaffold(
       appBar: AppBar(title: const Text('Setting'),),

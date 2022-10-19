@@ -486,7 +486,6 @@ class _FirstScreenState extends State<FirstScreen> {
                       ]),
                   ///GOAL GET UP TIME BUTTON
                   ElevatedButton(
-                    child: Text(DateFormat.Hm().format(_goalgetuptime), style: TextStyle(fontSize: 35),),
                     style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: EdgeInsets.symmetric(vertical: 8, horizontal: 80),),
                     onPressed: () async {
                       Picker(
@@ -507,6 +506,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         }
                       ).showModal(context);
                     },
+                    child: Text(DateFormat.Hm().format(_goalgetuptime), style: TextStyle(fontSize: 35),),
                   ),
                 ],
               ),

@@ -61,12 +61,10 @@ const bool cnsAlarmOff = false;
 bool flgFirstRun = true;
 //SQL
 const String strCnsSqlCreateSetting ="CREATE TABLE IF NOT EXISTS setting(id INTEGER PRIMARY KEY, firstrun TEXT,getuptime TEXT,alarmon TEXT,kankaku INTEGER,goalgetuptime TEXT,goalsleeptime TEXT,rewardcnt INTEGER,sleepalarmtime TEXT,goalday INTEGER,mpath TEXT)";
-const String strCnsSqlInsDefSetting = "INSERT INTO setting(firstrun,getuptime,alarmon,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,goalday,mpath) values('X' ,'2016-05-01 07:00:00.000Z','',1,'2016-05-01 06:00:00.000Z','2016-05-01 07:30:00.000Z',0,'',0,'mpath/test')";
-
+const String strCnsSqlInsDefSetting = "INSERT INTO setting(firstrun,getuptime,alarmon,kankaku,goalgetuptime,goalsleeptime,rewardcnt,sleepalarmtime,goalday,mpath) values('X' ,'2016-05-01 07:00:00.000Z','',1,'2016-05-01 06:00:00.000Z','2016-05-01 07:30:00.000Z',0,'',0,'')";
 const String strCnsSqlCreateRireki ="CREATE TABLE IF NOT EXISTS rireki(id INTEGER PRIMARY KEY, date TEXT, getupstatus TEXT, goalgetuptime TEXT, realgetuptime TEXT, goalbedintime TEXT, realbedintime TEXT, sleeptime TEXT)";
 const String strCnsRadDefSound = "DefaultSound";
 const String strCnsRadSelMusic = "SelectMusic";
-
 
 //広告ID
 //test
@@ -947,16 +945,7 @@ class _SecondScreenState extends State<SecondScreen> {
   void loadMusicName() async{
     String? strMusicPath = "";
     String? strMusicName = "";
-    String dbpath =  await getDatabasesPath();
-    String path = p.join(dbpath, "setting.db");
-    Database database = await openDatabase(path, version: 1,
-        onCreate: (Database db, int version) async {
-          await db.execute(strCnsSqlCreateSetting);});
-    List<Map> result = await database
-        .rawQuery('select mpath from setting  where id = 1');
-    for (Map item in result) {
-      strMusicPath = item['mpath'].toString();
-    }
+    strMusicPath = await _loadStrSetting('mpath');
     final reg = RegExp('[^//]+\$');
     if(strMusicPath != null && strMusicPath !="") {
       strMusicName = reg.firstMatch(strMusicPath)?.group(0);

@@ -542,9 +542,9 @@ class _FirstScreenState extends State<FirstScreen> {
             SizedBox(
               width: 200, height: 70,
               child: ElevatedButton(
-                child: Text( strStarstop, style: const TextStyle(fontSize: 35.0, color: Colors.white,),),
                 style: ElevatedButton.styleFrom(primary: primaryColor, onPrimary: Colors.white, shape: const StadiumBorder(), elevation: 16,),
                 onPressed: buttonPressed,
+                child: Text( strStarstop, style: const TextStyle(fontSize: 35.0, color: Colors.white,),),
               ),
             ),
           ],
@@ -987,17 +987,14 @@ class _SecondScreenState extends State<SecondScreen> {
     //ファイル選択
     FilePickerResult? result = null;
     result = await FilePicker.platform.pickFiles(
-        dialogTitle: 'Please Play Music File'
-        , type: FileType.audio
+        dialogTitle: 'Please Play Music File', type: FileType.audio
     );
     if (result != null) {
       try {
         File file = File(result.files.single.path!);
         strSePath = file.path.toString();
         srtName = result.files.single.name;
-        setState(() {
-          strSelectMusicName = srtName;
-        });
+        setState(() {strSelectMusicName = srtName;});
         _saveStrSetting('mpath',strSePath);
       } catch (e) {
         print(e);

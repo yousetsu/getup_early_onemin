@@ -290,7 +290,7 @@ class _FirstScreenState extends State<FirstScreen> {
   }
   // The callback for our alarm
   static Future<void> callSoundStart() async {
-    String? strSePath = null;
+    String? strSePath;
     strSePath = await _loadStrSetting('mpath');
 
     _player = AudioPlayer();

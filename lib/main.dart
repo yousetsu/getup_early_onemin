@@ -265,7 +265,7 @@ class _FirstScreenState extends State<FirstScreen> {
   DateTime _goal_bedin_time = DateTime.utc(0, 0, 0);
   int intMinKankaku = 1;
   int _goal_day = 0;
-  bool alarm_flg = false;
+  bool alarmFlg = false;
   MaterialColor primaryColor = Colors.orange;
   String strStarstop = '開始';
 
@@ -570,12 +570,12 @@ class _FirstScreenState extends State<FirstScreen> {
   }
   Future<void> buttonPressed() async {
     //void buttonPressed() {
-    alarm_flg = !alarm_flg;
+    alarmFlg = !alarmFlg;
     setState(() {
-      primaryColor = alarm_flg ?  Colors.blue:Colors.orange;
-      strStarstop = alarm_flg ?  'STOP':'START';
+      primaryColor = alarmFlg ?  Colors.blue:Colors.orange;
+      strStarstop = alarmFlg ?  'STOP':'START';
     });
-    if (alarm_flg == cnsAlarmOn) {
+    if (alarmFlg == cnsAlarmOn) {
       _saveStrSetting('alarmon','X');
       await alramset();
     } else {
@@ -679,14 +679,14 @@ class _FirstScreenState extends State<FirstScreen> {
     String? strAlarmon = await _loadStrSetting("alarmon");
     setState(()  {
       if (strAlarmon != null && strAlarmon.compareTo("X") == 0) {
-        alarm_flg = true;
+        alarmFlg = true;
       } else {
-        alarm_flg = false;
+        alarmFlg = false;
       }
     });
     setState(()  {
-      primaryColor = alarm_flg ? Colors.blue : Colors.orange;
-      strStarstop = alarm_flg ? 'STOP' : 'START';
+      primaryColor = alarmFlg ? Colors.blue : Colors.orange;
+      strStarstop = alarmFlg ? 'STOP' : 'START';
     });
       //目標起床時間
       String? strGoalgetuptime = await _loadStrSetting("goalgetuptime");

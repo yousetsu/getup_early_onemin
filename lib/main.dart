@@ -847,7 +847,7 @@ class _SecondScreenState extends State<SecondScreen> {
               Text('SLEEP TIME', style: styleA,),
             ],),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),),
+                  style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.lightBlueAccent, padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),),
                   onPressed: () async {
                     Picker(
                       adapter: DateTimePickerAdapter(
@@ -898,7 +898,7 @@ class _SecondScreenState extends State<SecondScreen> {
         Text('Alarm Select', style: styleB,),
       ]),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding:const  EdgeInsets.symmetric(vertical: 10, horizontal: 60),),
+                  style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.lightBlueAccent, padding:const  EdgeInsets.symmetric(vertical: 10, horizontal: 60),),
                    onPressed: !isEnable ? null :() async {alarmfileselect();},
                   child: const Text('Alarm Select', style: TextStyle(fontSize: 25),),
                 ),

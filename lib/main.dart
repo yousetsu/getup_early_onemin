@@ -363,6 +363,7 @@ class _FirstScreenState extends State<FirstScreen> {
                 'full screen channel id', 'full screen channel name',
                 channelDescription: 'full screen channel description',
                 priority: Priority.high,
+                playSound:false,
                 importance: Importance.high,
                 fullScreenIntent: true)),
         androidAllowWhileIdle: true,

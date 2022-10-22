@@ -504,7 +504,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         }
                       ).showModal(context);
                     },
-                    child: Text(DateFormat.Hm().format(_goalgetuptime), style: TextStyle(fontSize: 35),),
+                    child: Text(DateFormat.Hm().format(_goalgetuptime), style: const TextStyle(fontSize: 35),),
                   ),
                 ],
               ),

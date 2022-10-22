@@ -415,7 +415,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         Text('TOMMOROW GET UP TIME', style: styleB),
                       ]),
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 80),),
+                    style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.lightBlueAccent, padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 80),),
                     onPressed: () async {
                       Picker(
                         adapter: DateTimePickerAdapter(
@@ -484,7 +484,7 @@ class _FirstScreenState extends State<FirstScreen> {
                       ]),
                   ///GOAL GET UP TIME BUTTON
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: Colors.lightBlueAccent, onPrimary: Colors.white, padding: EdgeInsets.symmetric(vertical: 8, horizontal: 80),),
+                    style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.lightBlueAccent, padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 80),),
                     onPressed: () async {
                       Picker(
                         adapter: DateTimePickerAdapter(
@@ -540,7 +540,7 @@ class _FirstScreenState extends State<FirstScreen> {
             SizedBox(
               width: 200, height: 70,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(primary: primaryColor, onPrimary: Colors.white, shape: const StadiumBorder(), elevation: 16,),
+                style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: primaryColor, shape: const StadiumBorder(), elevation: 16,),
                 onPressed: buttonPressed,
                 child: Text( strStarstop, style: const TextStyle(fontSize: 35.0, color: Colors.white,),),
               ),

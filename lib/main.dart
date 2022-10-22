@@ -378,6 +378,7 @@ class _FirstScreenState extends State<FirstScreen> {
     intSecond = (intHourAmariSec % 60).floor();
     Fluttertoast.showToast(msg: '${intHour.toString()}hours${intMinute.toString()}minutes${intSecond.toString()}alarm set');
   }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

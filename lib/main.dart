@@ -80,6 +80,8 @@ int _numRewardedLoadAttempts = 0;
  -------------------------------------------------------------------*/
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //初回DB登録
+  _firstrun();
   await _configureLocalTimeZone();
   final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb &&
           Platform.isLinux
@@ -98,14 +100,11 @@ Future<void> main() async {
     selectedNotificationPayload = payload;
     selectNotificationSubject.add(payload);
   });
+
   //広告初期化
-  WidgetsFlutterBinding.ensureInitialized();
   //final initFuture = MobileAds.instance.initialize();
   MobileAds.instance.initialize();
   runApp(const MyApp());
-  //初回DB登録
-  _firstrun();
-
 }
 /*------------------------------------------------------------------
 全共通のメソッド
@@ -129,19 +128,38 @@ Future<void> _firstrun() async {
       });
   //設定テーブル作成
   path = p.join(dbpath, "setting.db");
-  database = await openDatabase(path, version: 1,
-      onCreate: (Database db, int version) async {
-        await db.execute(strCnsSqlCreateSetting);
-      });
-  List<Map> result = await database.rawQuery('SELECT mpath FROM setting where id =1');
-  if (result.isEmpty){
-    //設定テーブル初期値設定
-    String query = strCnsSqlInsDefSetting;
-    await database.transaction((txn) async {
-      //int id = await txn.rawInsert(query);
-      await txn.rawInsert(query);
-    });
-  }
+ // database = await openDatabase(path, version: 1);
+ // List<Map> result = await database.rawQuery('SELECT mpath FROM setting where id =1');
+  //if (result.isEmpty){
+    //設定テーブルがなければ、最初にassetsから作る
+    var exists = await databaseExists(path);
+    if (!exists) {
+      // Should happen only the first time you launch your application
+      print("Creating new copy from asset");
+
+      // Make sure the parent directory exists
+      //親ディレクリが存在することを確認
+      try {
+        await Directory(p.dirname(path)).create(recursive: true);
+      } catch (_) {}
+
+      // Copy from asset
+      ByteData data = await rootBundle.load(p.join("assets", "assets_setting.db"));
+      List<int> bytes =
+      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+
+      // Write and flush the bytes written
+      await File(path).writeAsBytes(bytes, flush: true);
+
+    } else {
+      print("Opening existing database");
+    }
+    // String query = strCnsSqlInsDefSetting;
+    // await database.transaction((txn) async {
+    //   //int id = await txn.rawInsert(query);
+    //   await txn.rawInsert(query);
+    // });
+ // }
 }
 void _createRewardedAd() {
   RewardedAd.load(
@@ -170,10 +188,7 @@ void _createRewardedAd() {
 void _saveStrSetting(String field ,String value) async {
   String dbPath = await getDatabasesPath();
   String path = p.join(dbPath, 'setting.db');
-  Database database = await openDatabase(path, version: 1,
-      onCreate: (Database db, int version) async {
-        await db.execute(strCnsSqlCreateSetting);
-      });
+  Database database = await openDatabase(path, version: 1);
   String query = "UPDATE setting set $field = '$value' where id = 1 ";
   await database.transaction((txn) async {
     //int id = await txn.rawInsert(query);
@@ -184,10 +199,7 @@ void _saveStrSetting(String field ,String value) async {
 void _saveIntSetting(String field ,int value) async {
   String dbPath = await getDatabasesPath();
   String path = p.join(dbPath, 'setting.db');
-  Database database = await openDatabase(path, version: 1,
-      onCreate: (Database db, int version) async {
-        await db.execute(strCnsSqlCreateSetting);
-      });
+  Database database = await openDatabase(path, version: 1);
   String query = "UPDATE setting set $field = '$value' where id = 1 ";
   await database.transaction((txn) async {
     //int id = await txn.rawInsert(query);
@@ -199,10 +211,7 @@ Future<String?> _loadStrSetting(String field) async{
   String? strValue = "";
   String dbPath = await getDatabasesPath();
   String path = p.join(dbPath, 'setting.db');
-  Database database = await openDatabase(path, version: 1,
-      onCreate: (Database db, int version) async {
-        await db.execute(strCnsSqlCreateSetting);
-      });
+  Database database = await openDatabase(path, version: 1);
   List<Map> result = await database.rawQuery("SELECT $field From setting where id = 1 ");
   for (Map item in result) {
     strValue = item[field].toString();
@@ -213,10 +222,7 @@ Future<int?> _loadIntSetting(String field) async{
   int? intValue = 0;
   String dbPath = await getDatabasesPath();
   String path = p.join(dbPath, 'setting.db');
-  Database database = await openDatabase(path, version: 1,
-      onCreate: (Database db, int version) async {
-        await db.execute(strCnsSqlCreateSetting);
-      });
+  Database database = await openDatabase(path, version: 1);
   List<Map> result = await database.rawQuery("SELECT $field From setting where id = 1 ");
   for (Map item in result) {
     intValue = item[field];

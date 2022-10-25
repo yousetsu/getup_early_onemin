@@ -120,46 +120,39 @@ Future<void> _configureLocalTimeZone() async {
 //初回起動分の処理
 Future<void> _firstrun() async {
   String dbpath = await getDatabasesPath();
+  //設定テーブル作成
+  String settingpath = p.join(dbpath, "setting.db");
+  //設定テーブルがなければ、最初にassetsから作る
+  var exists = await databaseExists(settingpath);
+  if (!exists) {
+    // Should happen only the first time you launch your application
+    print("Creating new copy from asset");
+
+    // Make sure the parent directory exists
+    //親ディレクリが存在することを確認
+    try {
+      await Directory(p.dirname(settingpath)).create(recursive: true);
+    } catch (_) {}
+
+    // Copy from asset
+    ByteData data = await rootBundle.load(p.join("assets", "assets_setting.db"));
+    List<int> bytes =
+    data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+
+    // Write and flush the bytes written
+    await File(settingpath).writeAsBytes(bytes, flush: true);
+
+  } else {
+    print("Opening existing database");
+  }
   //履歴テーブル作成
+
   String path = p.join(dbpath, "rireki.db");
   Database database = await openDatabase(path, version: 1,
       onCreate: (Database db, int version) async {
         await db.execute(strCnsSqlCreateRireki);
       });
-  //設定テーブル作成
-  path = p.join(dbpath, "setting.db");
- // database = await openDatabase(path, version: 1);
- // List<Map> result = await database.rawQuery('SELECT mpath FROM setting where id =1');
-  //if (result.isEmpty){
-    //設定テーブルがなければ、最初にassetsから作る
-    var exists = await databaseExists(path);
-    if (!exists) {
-      // Should happen only the first time you launch your application
-      print("Creating new copy from asset");
 
-      // Make sure the parent directory exists
-      //親ディレクリが存在することを確認
-      try {
-        await Directory(p.dirname(path)).create(recursive: true);
-      } catch (_) {}
-
-      // Copy from asset
-      ByteData data = await rootBundle.load(p.join("assets", "assets_setting.db"));
-      List<int> bytes =
-      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-
-      // Write and flush the bytes written
-      await File(path).writeAsBytes(bytes, flush: true);
-
-    } else {
-      print("Opening existing database");
-    }
-    // String query = strCnsSqlInsDefSetting;
-    // await database.transaction((txn) async {
-    //   //int id = await txn.rawInsert(query);
-    //   await txn.rawInsert(query);
-    // });
- // }
 }
 void _createRewardedAd() {
   RewardedAd.load(

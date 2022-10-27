@@ -146,13 +146,11 @@ Future<void> _firstrun() async {
     print("Opening existing database");
   }
   //履歴テーブル作成
-
   String path = p.join(dbpath, "rireki.db");
   Database database = await openDatabase(path, version: 1,
       onCreate: (Database db, int version) async {
         await db.execute(strCnsSqlCreateRireki);
       });
-
 }
 void _createRewardedAd() {
   RewardedAd.load(
@@ -263,7 +261,7 @@ class _FirstScreenState extends State<FirstScreen> {
   DateTime _goalgetuptime = DateTime.utc(0, 0, 0);
   DateTime _goal_bedin_time = DateTime.utc(0, 0, 0);
   int intMinKankaku = 1;
-  int _goal_day = 0;
+  int goalDay = 0;
   bool alarmFlg = false;
   MaterialColor primaryColor = Colors.orange;
   String strStarstop = '開始';
@@ -646,12 +644,12 @@ class _FirstScreenState extends State<FirstScreen> {
     });
     _saveStrSetting( 'goalgetuptime',_goalgetuptime.toString());
     //目標までの日数を-1
-    setState(() {_goal_day = _goal_day - 1;});
+    setState(() {goalDay = goalDay - 1;});
     //目標までの日数を保存
-    _saveIntSetting('goalday',_goal_day);
+    _saveIntSetting('goalday',goalDay);
 
     //目標までの日数を画面に表示
-    setState(() {_controllergoalday.text = 'Until the goal is achieved"${_goal_day.toString()}days';});
+    setState(() {_controllergoalday.text = 'Until the goal is achieved"${goalDay.toString()}days';});
   }
   //早起き失敗
   void resultFailure(String value) {
@@ -701,16 +699,16 @@ class _FirstScreenState extends State<FirstScreen> {
         diffmin = _getuptime.difference(_goalgetuptime).inMinutes;
         //目標までの時間（分）を間隔（分）で割、目標までの日数を計算する
         if (intMinKankaku != 0) {
-          setState(()  {_goal_day = diffmin ~/ intMinKankaku;});
+          setState(()  {goalDay = diffmin ~/ intMinKankaku;});
           amari = diffmin % intMinKankaku;
           if (amari != 0) {
-            setState(()  {_goal_day = _goal_day + 1;});
+            setState(()  {goalDay = goalDay + 1;});
           }
         }
         //目標までの日数を保存
-        _saveIntSetting('goalday', _goal_day);
+        _saveIntSetting('goalday', goalDay);
         //目標までの日数を画面に表示
-        setState(() {_controllergoalday.text = _goal_day.toString();});
+        setState(() {_controllergoalday.text = goalDay.toString();});
       }
       //目標睡眠時間の取得
       DateTime goalsleeptime = DateTime.utc(0, 0, 0, 0, 0);

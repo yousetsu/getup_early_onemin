@@ -143,7 +143,7 @@ Future<void> _firstrun() async {
     await File(settingpath).writeAsBytes(bytes, flush: true);
 
   } else {
-    print("Opening existing database");
+    //print("Opening existing database");
   }
   //履歴テーブル作成
   String path = p.join(dbpath, "rireki.db");
@@ -259,7 +259,7 @@ class _FirstScreenState extends State<FirstScreen> {
   final _formKey = GlobalKey<FormState>();
   DateTime _getuptime = DateTime.utc(0, 0, 0);
   DateTime _goalgetuptime = DateTime.utc(0, 0, 0);
-  DateTime _goal_bedin_time = DateTime.utc(0, 0, 0);
+  DateTime goalBedinTime = DateTime.utc(0, 0, 0);
   int intMinKankaku = 1;
   int goalDay = 0;
   bool alarmFlg = false;
@@ -532,7 +532,7 @@ class _FirstScreenState extends State<FirstScreen> {
             Text('Recommended Bedtime', style: styleB,),
             ]),
             //ここに目標就寝時刻を表示
-            Text(DateFormat.Hm().format(_goal_bedin_time), style: const TextStyle(fontSize: 35.0, color: Colors.white)),
+            Text(DateFormat.Hm().format(goalBedinTime), style: const TextStyle(fontSize: 35.0, color: Colors.white)),
             const Padding(padding: EdgeInsets.all(5.0),),
             const Divider(color: Colors.white, thickness: 1.0,),
             //開始ボタン
@@ -640,7 +640,7 @@ class _FirstScreenState extends State<FirstScreen> {
     //本日の目標就寝時刻を算出
     setState(() {
       _getuptime = _getuptime.subtract(Duration(minutes: intMinKankaku));
-      _goal_bedin_time = _goal_bedin_time.subtract(Duration(minutes: intMinKankaku));
+      goalBedinTime = goalBedinTime.subtract(Duration(minutes: intMinKankaku));
     });
     _saveStrSetting( 'goalgetuptime',_goalgetuptime.toString());
     //目標までの日数を-1
@@ -721,7 +721,7 @@ class _FirstScreenState extends State<FirstScreen> {
       int sleeptimeHour = goalsleeptime.hour;
       int sleeptimeMin = goalsleeptime.minute;
       setState(() {
-      _goal_bedin_time = _getuptime.subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
+        goalBedinTime = _getuptime.subtract(Duration(hours: sleeptimeHour, minutes: sleeptimeMin));
       });
   }
 /*------------------------------------------------------------------
@@ -759,7 +759,7 @@ class _SecondScreenState extends State<SecondScreen> {
   final TextStyle styleA = const TextStyle(fontSize: 20.0, color: Colors.white);
   final TextStyle styleB = const TextStyle(fontSize: 15.0, color: Colors.white);
   DateTime _goalsleeptime = DateTime.utc(0, 0, 0);
-  DateTime _getuptime = DateTime.utc(0, 0, 0);
+  DateTime getUpTime = DateTime.utc(0, 0, 0);
   String? strSelectMusicName = "";
   bool isEnable = false;
   String? _type = '';
@@ -993,7 +993,7 @@ class _SecondScreenState extends State<SecondScreen> {
     //起床時間の取得
     String? strGetuptime = await _loadStrSetting('getuptime');
     if (strGetuptime != null && strGetuptime != "") {
-      setState(()  {_getuptime = DateTime.parse(strGetuptime);});
+      setState(()  {getUpTime = DateTime.parse(strGetuptime);});
     }
     //目標睡眠時間の取得
     String? strGoalsleep = await _loadStrSetting('goalsleeptime');

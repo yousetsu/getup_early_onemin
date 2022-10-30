@@ -126,7 +126,7 @@ Future<void> _firstrun() async {
   var exists = await databaseExists(settingpath);
   if (!exists) {
     // Should happen only the first time you launch your application
-    print("Creating new copy from asset");
+   // print("Creating new copy from asset");
 
     // Make sure the parent directory exists
     //親ディレクリが存在することを確認
@@ -775,7 +775,7 @@ class _SecondScreenState extends State<SecondScreen> {
       onAdFailedToLoad: (Ad ad, LoadAdError error) {
         // Dispose the ad here to free resources.
         ad.dispose();
-        print('バナー広告の読み込みが次の理由で失敗しました: $error');
+      //  print('バナー広告の読み込みが次の理由で失敗しました: $error');
       },
       // Called when an ad opens an overlay that covers the screen.
       onAdOpened: (Ad ad) => print('バナー広告が開かれました'),
@@ -985,7 +985,7 @@ class _SecondScreenState extends State<SecondScreen> {
         setState(() {strSelectMusicName = srtName;});
         _saveStrSetting('mpath',strSePath);
       } catch (e) {
-        print(e);
+        //print(e);
       }
     }
   }
@@ -1038,12 +1038,12 @@ class _ThirdScreenState extends State<ThirdScreen> {
         onAdShowedFullScreenContent: (RewardedAd ad) =>
             print('ad onAdShowedFullScreenContent.'),
         onAdDismissedFullScreenContent: (RewardedAd ad) {
-          print('$ad onAdDismissedFullScreenContent.');
+          //print('$ad onAdDismissedFullScreenContent.');
           ad.dispose();
           _createRewardedAd();
         },
         onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
-          print('$ad onAdFailedToShowFullScreenContent: $error');
+         // print('$ad onAdFailedToShowFullScreenContent: $error');
           ad.dispose();
           _createRewardedAd();
         },

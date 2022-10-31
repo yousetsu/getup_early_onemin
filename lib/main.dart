@@ -794,12 +794,12 @@ class _SecondScreenState extends State<SecondScreen> {
         onAdShowedFullScreenContent: (RewardedAd ad) =>
             print('ad onAdShowedFullScreenContent.'),
         onAdDismissedFullScreenContent: (RewardedAd ad) {
-          print('$ad onAdDismissedFullScreenContent.');
+      //    print('$ad onAdDismissedFullScreenContent.');
           ad.dispose();
           _createRewardedAd();
         },
         onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
-          print('$ad onAdFailedToShowFullScreenContent: $error');
+        //  print('$ad onAdFailedToShowFullScreenContent: $error');
           ad.dispose();
           _createRewardedAd();
         },

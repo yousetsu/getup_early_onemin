@@ -23,6 +23,7 @@ dependencies:
   just_audio: ^0.9.29
   file_picker: ^5.2.0
   path_provider: ^2.0.11
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
@@ -31,7 +32,6 @@ dev_dependencies:
   flutter_local_notifications: ^9.8.0+1
   android_alarm_manager_plus: ^2.1.0
   flutter_lints: ^2.0.0
-  intl: ^0.17.0
   date_format: ^2.0.4
   device_info: ^2.0.3
   http: ^0.13.4
@@ -48,7 +48,7 @@ flutter_icons:
   min_sdk_android: 21
 # The following section is specific to Flutter packages.
 flutter:
-
+  generate: true
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

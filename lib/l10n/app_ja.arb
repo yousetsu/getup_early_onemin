@@ -1,5 +1,5 @@
 {
 "@@locale": "ja",
-"test": "明日の起床時間",
-"hello": "こんちゃ"
+"tmgetuptime": "明日の起床時間",
+"interval": "間隔(分)"
 }

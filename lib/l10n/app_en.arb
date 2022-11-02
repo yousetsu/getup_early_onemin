@@ -1,5 +1,5 @@
 {
 "@@locale": "en",
-"test": "TOMMOROW GET UP TIME",
-"hello": "Heeey"
+"tmgetuptime": "TOMMOROW GET UP TIME",
+"interval": "INTERVAL(Minutes)"
 }

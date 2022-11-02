@@ -424,7 +424,7 @@ class _FirstScreenState extends State<FirstScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         const Icon(Icons.alarm, color: Colors.white, size: 35),
-                        Text(AppLocalizations.of(context)!.test, style: styleB),
+                        Text(AppLocalizations.of(context)!.tmgetuptime, style: styleB),
                       ]),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.lightBlueAccent, padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 80),),
@@ -449,7 +449,7 @@ class _FirstScreenState extends State<FirstScreen> {
                   ///INTERVAL
                   const Padding(padding: EdgeInsets.all(5.0),),
                   Row(mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[const Icon(Icons.watch_later, color: Colors.white, size: 35), Text('INTERVAL(Minutes)', style: styleB),]),
+                      children: <Widget>[const Icon(Icons.watch_later, color: Colors.white, size: 35), Text(AppLocalizations.of(context)!.interval, style: styleB),]),
                   Container(
                     padding: const EdgeInsets.all(5.0),
                     alignment: Alignment.bottomCenter,

@@ -365,8 +365,8 @@ class _FirstScreenState extends State<FirstScreen> {
     );
     await flutterLocalNotificationsPlugin.zonedSchedule(
         helloAlarmID,
-        'Baby steps early get up!',
-        'it\' s morning!',
+        AppLocalizations.of(context)!.alarmtitle,
+        AppLocalizations.of(context)!.alarmmessage,
         tz.TZDateTime.now(tz.local).add(Duration(seconds: diffSecond)),
         const NotificationDetails(
             android: AndroidNotificationDetails(
@@ -596,17 +596,17 @@ class _FirstScreenState extends State<FirstScreen> {
       showDialog(
           context: context,
           builder: (BuildContext context) => AlertDialog(
-                title: const Text("Confirm"),
-                content: const Text("Did you wake up at your target time?"),
+                title:  Text(AppLocalizations.of(context)!.confirm),
+                content: Text(AppLocalizations.of(context)!.targettime),
                 actions: <Widget>[
                   TextButton(
-                      child: const Text('Yes'),
+                      child: Text(AppLocalizations.of(context)!.yes),
                       onPressed: () => Navigator.pop<String>(context, 'Yes')),
                   TextButton(
-                      child: const Text('No'),
+                      child: Text(AppLocalizations.of(context)!.no),
                       onPressed: () => Navigator.pop<String>(context, 'No')),
                   TextButton(
-                      child: const Text('Cancel Alarm'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                       onPressed: () => Navigator.pop<String>(context, 'Cancel'))
                 ],
               )).then<void>((value) => resultAlert(value));
@@ -618,8 +618,8 @@ class _FirstScreenState extends State<FirstScreen> {
         case 'Yes':
           showDialog(context: context,
               builder: (BuildContext context) => AlertDialog(
-                    title: const Text("Confirm"),
-                    content: const Text("Move forward tomorrow's wake-up time"),
+                    title: Text(AppLocalizations.of(context)!.confirm),
+                    content: Text(AppLocalizations.of(context)!.moveforward),
                     actions: <Widget>[
                       TextButton(
                           child: const Text('OK'),
@@ -630,7 +630,7 @@ class _FirstScreenState extends State<FirstScreen> {
         case 'No':
           showDialog(context: context,
               builder: (BuildContext context) => AlertDialog(title: const Text("Confirm"),
-                    content: const Text("Re-challenge tomorrow at the same time!"),
+                    content: Text(AppLocalizations.of(context)!.rechallenge),
                     actions: <Widget>[
                       TextButton(
                           child: const Text('OK'),

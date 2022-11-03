@@ -1,10 +1,19 @@
 {
 "@@locale": "en",
+"alarmtitle": "Baby steps early get up!",
+"alarmmessage": "it's morning!",
 "t1getupearly": "Get up early by",
 "t1everyday": "minute every day",
 "tmgetuptime": "TOMMOROW GET UP TIME",
 "interval": "INTERVAL(Minutes)",
 "glgetuptime": "GOAL GET UP TIME",
 "daystogo": "  DAYS TO GO",
-"recbedtime": "Recommended Bedtime"
+"recbedtime": "Recommended Bedtime",
+"confirm": "Confirm",
+"targettime": "Did you wake up at your target time?",
+"yes": "Yes",
+"no": "No",
+"cancel": "Cancel Alarm",
+"moveforward": "Move forward tomorrow's wake-up time",
+"rechallenge": "Re-challenge tomorrow at the same time!"
 }

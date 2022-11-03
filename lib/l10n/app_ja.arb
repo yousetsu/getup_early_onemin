@@ -1,10 +1,19 @@
 {
 "@@locale": "ja",
+"alarmtitle": "1日1分早起き",
+"alarmmessage": "起床時刻です！",
 "t1getupearly": "1日",
 "t1everyday": "分ずつ早起き",
 "tmgetuptime": "明日の起床時間",
 "interval": "間隔(分)",
 "glgetuptime": "最終目標の起床時間",
 "daystogo": "  日で目標達成",
-"recbedtime": "推奨就寝時間"
+"recbedtime": "推奨就寝時間",
+"confirm": "確認",
+"targettime": "目標の時間に起きれましたか?",
+"yes": "はい",
+"no": "いいえ",
+"cancel": "アラーム取消",
+"moveforward": "明日の起床時間を前倒しします。",
+"rechallenge": "明日も同じ時刻で再チャレンジ！"
 }

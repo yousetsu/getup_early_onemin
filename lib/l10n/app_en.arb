@@ -1,5 +1,10 @@
 {
 "@@locale": "en",
+"t1getupearly": "Get up early by",
+"t1everyday": "minute every day",
 "tmgetuptime": "TOMMOROW GET UP TIME",
-"interval": "INTERVAL(Minutes)"
+"interval": "INTERVAL(Minutes)",
+"glgetuptime": "GOAL GET UP TIME",
+"daystogo": "  DAYS TO GO",
+"recbedtime": "Recommended Bedtime"
 }

@@ -492,7 +492,7 @@ class _FirstScreenState extends State<FirstScreen> {
                   ///GOAL GET UP TIME
                   const Padding(padding: EdgeInsets.all(5),),
                   Row(mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[const Icon(Icons.emoji_events, color: Colors.white, size: 35), Text('GOAL GET UP TIME', style: styleB),
+                      children: <Widget>[const Icon(Icons.emoji_events, color: Colors.white, size: 35), Text(AppLocalizations.of(context)!.glgetuptime, style: styleB),
                       ]),
                   ///GOAL GET UP TIME BUTTON
                   ElevatedButton(
@@ -533,7 +533,7 @@ class _FirstScreenState extends State<FirstScreen> {
                        style: const TextStyle(fontSize: 30.0, color: Colors.white, decoration: TextDecoration.none),
                 ),
               ),
-              Text('  DAYS TO GO', style: styleB,),
+              Text(AppLocalizations.of(context)!.daystogo, style: styleB,),
             ]),
              const Divider(color: Colors.white, thickness: 1.0,),
             ///Recommended bedtime
@@ -542,7 +542,7 @@ class _FirstScreenState extends State<FirstScreen> {
           const Padding(padding: EdgeInsets.all(20),),
         const Icon(Icons.bedtime, color: Colors.yellow, size: 35),
         const Padding(padding: EdgeInsets.all(10),),
-            Text('Recommended Bedtime', style: styleB,),
+            Text(AppLocalizations.of(context)!.recbedtime, style: styleB,),
             ]),
             //ここに目標就寝時刻を表示
             Text(DateFormat.Hm().format(goalBedinTime), style: const TextStyle(fontSize: 35.0, color: Colors.white)),
@@ -685,7 +685,9 @@ class _FirstScreenState extends State<FirstScreen> {
     setState(()  {
       intMinKankaku = intKankaku!;
       _textControllerKankaku.text = intMinKankaku.toString();
-      _controllerTitle.text = 'Get up early by $intMinKankaku minute every day';
+      String strt1getupearly = AppLocalizations.of(context)!.t1getupearly;
+      String strt1everyday= AppLocalizations.of(context)!.t1everyday;
+      _controllerTitle.text = '$strt1getupearly $intMinKankaku $strt1everyday';
     });
     //アラーム
     String? strAlarmon = await _loadStrSetting("alarmon");

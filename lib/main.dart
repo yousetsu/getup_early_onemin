@@ -846,7 +846,7 @@ class _SecondScreenState extends State<SecondScreen> {
       child: adWidget,
     );
     return Scaffold(
-      appBar: AppBar(title: const Text('Setting'),),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.setting),),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -857,7 +857,7 @@ class _SecondScreenState extends State<SecondScreen> {
               mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
                 const Padding(padding: EdgeInsets.all(20),),
               const Icon(Icons.schedule, color: Colors.white, size: 30),
-              Text('SLEEP TIME', style: styleA,),
+              Text(AppLocalizations.of(context)!.sleeptime, style: styleA,),
             ],),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.lightBlueAccent, padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80),),
@@ -885,7 +885,7 @@ class _SecondScreenState extends State<SecondScreen> {
                     mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
                       const Padding(padding: EdgeInsets.all(20),),
                   const Icon(Icons.music_note, color: Colors.white, size: 30),
-                  Text('Alarm Sound', style: styleA,),
+                  Text(AppLocalizations.of(context)!.alarmsound, style: styleA,),
                 ]),
             Row(
               mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
@@ -897,7 +897,7 @@ class _SecondScreenState extends State<SecondScreen> {
               onChanged: _handleRadio,
               autofocus:true,
             ),
-              Text('Defualt Alarm Sound', style: styleB,),
+              Text(AppLocalizations.of(context)!.defualtalarm, style: styleB,),
             ]),
       Row(
         mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
@@ -908,19 +908,19 @@ class _SecondScreenState extends State<SecondScreen> {
               groupValue: _type,
               onChanged: _handleRadio,
             ),
-        Text('Alarm Select', style: styleB,),
+        Text(AppLocalizations.of(context)!.selalarm, style: styleB,),
       ]),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.lightBlueAccent, padding:const  EdgeInsets.symmetric(vertical: 10, horizontal: 60),),
                    onPressed: !isEnable ? null :() async {alarmfileselect();},
-                  child: const Text('Alarm Select', style: TextStyle(fontSize: 25),),
+                  child: Text(AppLocalizations.of(context)!.selfile, style: const TextStyle(fontSize: 20),),
                 ),
                const Padding(padding: EdgeInsets.all(10.0),),
                 //アラーム選択ファイル
             Row(
                 mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
                   const Padding(padding: EdgeInsets.only(left:60.0),),
-              Text('Select Music：', style: styleA),
+              Text(AppLocalizations.of(context)!.selmusic, style: const TextStyle(color: Colors.white,fontSize: 15),)
             ]),
             Row(
                 mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[

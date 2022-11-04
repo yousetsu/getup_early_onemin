@@ -1,6 +1,6 @@
 {
 "@@locale": "en",
-"alarmtitle": "Baby steps early get up!",
+"alarmtitle": "Babystep get up early Alarm",
 "alarmmessage": "it's morning!",
 "t1getupearly": "Get up early by",
 "t1everyday": "minute every day",
@@ -15,5 +15,12 @@
 "no": "No",
 "cancel": "Cancel Alarm",
 "moveforward": "Move forward tomorrow's wake-up time",
-"rechallenge": "Re-challenge tomorrow at the same time!"
+"rechallenge": "Re-challenge tomorrow at the same time!",
+"setting": "Setting",
+"sleeptime": "SLEEP TIME",
+"alarmsound": "Alarm Sound",
+"defualtalarm": "Defualt Alarm Sound",
+"selalarm": "Select Music",
+"selfile": "Select File",
+"selmusic": "Music File："
 }

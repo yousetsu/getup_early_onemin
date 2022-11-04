@@ -1,6 +1,6 @@
 {
 "@@locale": "ja",
-"alarmtitle": "1日1分早起き",
+"alarmtitle": "1日1分早起きアラーム",
 "alarmmessage": "起床時刻です！",
 "t1getupearly": "1日",
 "t1everyday": "分ずつ早起き",
@@ -15,5 +15,12 @@
 "no": "いいえ",
 "cancel": "アラーム取消",
 "moveforward": "明日の起床時間を前倒しします。",
-"rechallenge": "明日も同じ時刻で再チャレンジ！"
+"rechallenge": "明日も同じ時刻で再チャレンジ！",
+"setting": "設定",
+"sleeptime": "睡眠時間",
+"alarmsound": "アラーム音",
+"defualtalarm": "目覚ましアラーム(デフォルト)",
+"selalarm": "音楽ファイルを選択",
+"selfile": "ファイル選択",
+"selmusic": "ファイル名："
 }

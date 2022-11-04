@@ -662,8 +662,8 @@ class _FirstScreenState extends State<FirstScreen> {
     _saveIntSetting('goalday',goalDay);
 
     //目標までの日数を画面に表示
-    setState(() {_controllergoalday.text = 'Until the goal is achieved"${goalDay.toString()}days';});
-  }
+    setState(() {_controllergoalday.text = goalDay.toString();});}
+
   //早起き失敗
   void resultFailure(String value) {
     String? strGetuptime;

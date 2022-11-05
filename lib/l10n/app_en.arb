@@ -22,5 +22,12 @@
 "defualtalarm": "Defualt Alarm Sound",
 "selalarm": "Select Music",
 "selfile": "Select File",
-"selmusic": "Music File："
+"selmusic": "Music File：",
+"getuphistory": "Get up history",
+"status": "STATUS",
+"date": "DATE",
+"targettm": "TARGET TIME",
+"home": "Home",
+"history": "History"
+
 }

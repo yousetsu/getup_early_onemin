@@ -565,10 +565,10 @@ class _FirstScreenState extends State<FirstScreen> {
         selectedItemColor: Colors.deepOrange,
         unselectedItemColor: Colors.orangeAccent,
         currentIndex: 0,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(label: 'Home', icon: Icon(Icons.home)),
-          BottomNavigationBarItem(label: 'Setting', icon: Icon(Icons.settings)),
-          BottomNavigationBarItem(label: 'History', icon: Icon(Icons.list)),
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.home, icon: Icon(Icons.home)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.setting, icon: Icon(Icons.settings)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.history, icon: Icon(Icons.list)),
         ],
         onTap: (int index) {
           if (index == 1) {
@@ -938,10 +938,10 @@ class _SecondScreenState extends State<SecondScreen> {
         selectedItemColor: Colors.deepOrange,
         unselectedItemColor: Colors.orangeAccent,
         currentIndex: 1,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(label: 'Home', icon: Icon(Icons.home)),
-          BottomNavigationBarItem(label: 'Setting', icon: Icon(Icons.settings)),
-          BottomNavigationBarItem(label: 'History', icon: Icon(Icons.list)),
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.home, icon: Icon(Icons.home)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.setting, icon: Icon(Icons.settings)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.history, icon: Icon(Icons.list)),
         ],
         onTap: (int index) {
           if (index == 0) {
@@ -976,7 +976,7 @@ class _SecondScreenState extends State<SecondScreen> {
       if(e == strCnsRadDefSound){
         isEnable = false;
         _saveStrSetting('mpath',"");
-        strSelectMusicName = "Defualt Sound";
+        strSelectMusicName = AppLocalizations.of(context)!.defualtalarm;
       }else{
         isEnable = true;
       }
@@ -1079,7 +1079,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar: AppBar(title: const Text('Get up history'),),
+       appBar: AppBar(title: Text(AppLocalizations.of(context)!.getuphistory)),
       body:  Column(
         children: <Widget>[
           _listHeader(),
@@ -1095,10 +1095,10 @@ class _ThirdScreenState extends State<ThirdScreen> {
         selectedItemColor: Colors.deepOrange,
         unselectedItemColor: Colors.orangeAccent,
         currentIndex: 2,
-        items:const  <BottomNavigationBarItem>[
-          BottomNavigationBarItem(label: 'Home', icon: Icon(Icons.home)),
-          BottomNavigationBarItem(label: 'Setting', icon: Icon(Icons.settings)),
-          BottomNavigationBarItem(label: 'History', icon: Icon(Icons.list)),
+        items:  <BottomNavigationBarItem>[
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.home, icon: Icon(Icons.home)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.setting, icon: Icon(Icons.settings)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.history, icon: Icon(Icons.list)),
         ],
         onTap: (int index) {
           if (index == 0) {

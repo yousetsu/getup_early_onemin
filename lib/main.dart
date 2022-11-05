@@ -277,7 +277,7 @@ class _FirstScreenState extends State<FirstScreen> {
   int goalDay = 0;
   bool alarmFlg = false;
   MaterialColor primaryColor = Colors.orange;
-  String strStarstop = '開始';
+  String strStarstop = 'START';
 
   //現在日付
   final TextStyle styleA = const TextStyle(fontSize: 28.0, color: Colors.white,);
@@ -1117,10 +1117,10 @@ class _ThirdScreenState extends State<ThirdScreen> {
         decoration:  const BoxDecoration(
             border: Border(bottom: BorderSide(width: 1.0, color: Colors.grey))),
         child: ListTile(
-            title:  Row(children: const <Widget>[
-              Expanded(child:  Text("STATUS", style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-               Expanded(child:  Text("DATE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-               Expanded(child:  Text("TARGET TIME", style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+            title:  Row(children:  <Widget>[
+              Expanded(child:  Text(AppLocalizations.of(context)!.status, style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+               Expanded(child:  Text(AppLocalizations.of(context)!.setting, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+               Expanded(child:  Text(AppLocalizations.of(context)!.history, style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
         ])));
   }
   void getItems() async {

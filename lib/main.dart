@@ -939,9 +939,9 @@ class _SecondScreenState extends State<SecondScreen> {
         unselectedItemColor: Colors.orangeAccent,
         currentIndex: 1,
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(label: AppLocalizations.of(context)!.home, icon: Icon(Icons.home)),
-          BottomNavigationBarItem(label: AppLocalizations.of(context)!.setting, icon: Icon(Icons.settings)),
-          BottomNavigationBarItem(label: AppLocalizations.of(context)!.history, icon: Icon(Icons.list)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.home, icon: const Icon(Icons.home)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.setting, icon: const Icon(Icons.settings)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.history, icon: const Icon(Icons.list)),
         ],
         onTap: (int index) {
           if (index == 0) {

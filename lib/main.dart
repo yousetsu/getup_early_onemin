@@ -1119,8 +1119,8 @@ class _ThirdScreenState extends State<ThirdScreen> {
         child: ListTile(
             title:  Row(children:  <Widget>[
               Expanded(child:  Text(AppLocalizations.of(context)!.status, style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-               Expanded(child:  Text(AppLocalizations.of(context)!.setting, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-               Expanded(child:  Text(AppLocalizations.of(context)!.history, style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+               Expanded(child:  Text(AppLocalizations.of(context)!.date, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+               Expanded(child:  Text(AppLocalizations.of(context)!.targettm, style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
         ])));
   }
   void getItems() async {

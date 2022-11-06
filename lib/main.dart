@@ -566,9 +566,9 @@ class _FirstScreenState extends State<FirstScreen> {
         unselectedItemColor: Colors.orangeAccent,
         currentIndex: 0,
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(label: AppLocalizations.of(context)!.home, icon: Icon(Icons.home)),
-          BottomNavigationBarItem(label: AppLocalizations.of(context)!.setting, icon: Icon(Icons.settings)),
-          BottomNavigationBarItem(label: AppLocalizations.of(context)!.history, icon: Icon(Icons.list)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.home, icon: const Icon(Icons.home)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.setting, icon: const Icon(Icons.settings)),
+          BottomNavigationBarItem(label: AppLocalizations.of(context)!.history, icon: const Icon(Icons.list)),
         ],
         onTap: (int index) {
           if (index == 1) {

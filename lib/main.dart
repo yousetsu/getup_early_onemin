@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +78,54 @@ const String strCnsRewardID = 'ca-app-pub-3940256099942544/5224354917'; //Reward
 //const String strCnsRewardID = 'ca-app-pub-8759269867859745/8740337207'; //Reward
 RewardedAd? _rewardedAd;
 int _numRewardedLoadAttempts = 0;
+//-------------------------------------------------------------
+//   DB処理
+//-------------------------------------------------------------
+//設定テーブルにデータ保存
+void _saveStrSetting(String field ,String value) async {
+  String dbPath = await getDatabasesPath();
+  String path = p.join(dbPath, 'setting.db');
+  Database database = await openDatabase(path, version: 1);
+  String query = "UPDATE setting set $field = '$value' where id = 1 ";
+  await database.transaction((txn) async {
+    //int id = await txn.rawInsert(query);
+    await txn.rawInsert(query);
+    //   print("insert: $id");
+  });
+}
+void _saveIntSetting(String field ,int value) async {
+  String dbPath = await getDatabasesPath();
+  String path = p.join(dbPath, 'setting.db');
+  Database database = await openDatabase(path, version: 1);
+  String query = "UPDATE setting set $field = '$value' where id = 1 ";
+  await database.transaction((txn) async {
+    //int id = await txn.rawInsert(query);
+    await txn.rawInsert(query);
+    //   print("insert: $id");
+  });
+}
+Future<String?> _loadStrSetting(String field) async{
+  String? strValue = "";
+  String dbPath = await getDatabasesPath();
+  String path = p.join(dbPath, 'setting.db');
+  Database database = await openDatabase(path, version: 1);
+  List<Map> result = await database.rawQuery("SELECT $field From setting where id = 1 ");
+  for (Map item in result) {
+    strValue = item[field].toString();
+  }
+  return strValue;
+}
+Future<int?> _loadIntSetting(String field) async{
+  int? intValue = 0;
+  String dbPath = await getDatabasesPath();
+  String path = p.join(dbPath, 'setting.db');
+  Database database = await openDatabase(path, version: 1);
+  List<Map> result = await database.rawQuery("SELECT $field From setting where id = 1 ");
+  for (Map item in result) {
+    intValue = item[field];
+  }
+  return intValue;
+}
 /*------------------------------------------------------------------
 起動
  -------------------------------------------------------------------*/
@@ -174,54 +223,7 @@ void _createRewardedAd() {
         },
       ));
 }
-//-------------------------------------------------------------
-//   DB処理
-//-------------------------------------------------------------
-//設定テーブルにデータ保存
-void _saveStrSetting(String field ,String value) async {
-  String dbPath = await getDatabasesPath();
-  String path = p.join(dbPath, 'setting.db');
-  Database database = await openDatabase(path, version: 1);
-  String query = "UPDATE setting set $field = '$value' where id = 1 ";
-  await database.transaction((txn) async {
-    //int id = await txn.rawInsert(query);
-    await txn.rawInsert(query);
-    //   print("insert: $id");
-  });
-}
-void _saveIntSetting(String field ,int value) async {
-  String dbPath = await getDatabasesPath();
-  String path = p.join(dbPath, 'setting.db');
-  Database database = await openDatabase(path, version: 1);
-  String query = "UPDATE setting set $field = '$value' where id = 1 ";
-  await database.transaction((txn) async {
-    //int id = await txn.rawInsert(query);
-    await txn.rawInsert(query);
-    //   print("insert: $id");
-  });
-}
-Future<String?> _loadStrSetting(String field) async{
-  String? strValue = "";
-  String dbPath = await getDatabasesPath();
-  String path = p.join(dbPath, 'setting.db');
-  Database database = await openDatabase(path, version: 1);
-  List<Map> result = await database.rawQuery("SELECT $field From setting where id = 1 ");
-  for (Map item in result) {
-    strValue = item[field].toString();
-  }
-  return strValue;
-}
-Future<int?> _loadIntSetting(String field) async{
-  int? intValue = 0;
-  String dbPath = await getDatabasesPath();
-  String path = p.join(dbPath, 'setting.db');
-  Database database = await openDatabase(path, version: 1);
-  List<Map> result = await database.rawQuery("SELECT $field From setting where id = 1 ");
-  for (Map item in result) {
-    intValue = item[field];
-  }
-  return intValue;
-}
+
 /*------------------------------------------------------------------
 第メイン画面(MainScreen)
  -------------------------------------------------------------------*/
@@ -660,6 +662,8 @@ class _FirstScreenState extends State<FirstScreen> {
     setState(() {goalDay = goalDay - 1;});
     //目標までの日数を保存
     _saveIntSetting('goalday',goalDay);
+    //前倒しした起床時間を保存
+    _saveStrSetting('getuptime',_getuptime.toIso8601String());
 
     //目標までの日数を画面に表示
     setState(() {_controllergoalday.text = goalDay.toString();});}

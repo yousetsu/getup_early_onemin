@@ -25,7 +25,6 @@ import 'package:audio_session/audio_session.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 late AudioPlayer _player;
 String strSePath = "";
 
@@ -262,11 +261,13 @@ class MyApp extends StatelessWidget {
 /*------------------------------------------------------------------
 第一画面(FirstScreen)
  -------------------------------------------------------------------*/
+@pragma('vm:entry-point')
 class FirstScreen extends StatefulWidget {
   const FirstScreen({Key? key}) : super(key: key); //コンストラクタ
   @override
   State<FirstScreen> createState() =>  _FirstScreenState();
 }
+@pragma('vm:entry-point')
 class _FirstScreenState extends State<FirstScreen> {
   final _controllerTitle = TextEditingController();
   final _controllergoalday = TextEditingController();
@@ -291,20 +292,22 @@ class _FirstScreenState extends State<FirstScreen> {
     AndroidAlarmManager.initialize();
     loadPref();
   }
+  @pragma('vm:entry-point')
   stopTheSound() async {
     await flutterLocalNotificationsPlugin.cancel(helloAlarmID);
     await AndroidAlarmManager.oneShot(
         const Duration(seconds: 0), helloAlarmID, stopSound,
         exact: true, wakeup: true, alarmClock: true, allowWhileIdle: true);
   }
+  @pragma('vm:entry-point')
   static stopSound() async {
     _player.stop();
   }
   // The callback for our alarm
+  @pragma('vm:entry-point')
   static Future<void> callSoundStart() async {
     String? strSePath;
     strSePath = await _loadStrSetting('mpath');
-
     _player = AudioPlayer();
     final session = await AudioSession.instance;
     await session.configure(const AudioSessionConfiguration.music());

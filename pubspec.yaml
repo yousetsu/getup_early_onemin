@@ -5,7 +5,7 @@ description: getup_early_onemin
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.4+5
+version: 1.0.5+6
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
@@ -20,7 +20,7 @@ dependencies:
 
   cupertino_icons: ^1.0.2
   flutter_launcher_icons: ^0.10.0
-  just_audio: ^0.9.29
+  just_audio: ^0.9.30
   file_picker: ^5.2.0
   path_provider: ^2.0.11
   intl: ^0.17.0

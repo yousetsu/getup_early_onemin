@@ -5,7 +5,7 @@ description: getup_early_onemin
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.5+6
+version: 1.0.6+7
 
 environment:
   sdk: ">=2.17.6 <3.0.0"

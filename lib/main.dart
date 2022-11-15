@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,13 +18,13 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'const/const.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const MethodChannel platform =
 MethodChannel('dexterx.dev/flutter_local_notifications_example');
@@ -263,7 +262,40 @@ class _FirstScreenState extends State<FirstScreen> {
   bool alarmFlg = false;
   MaterialColor primaryColor = Colors.orange;
   String strStarstop = 'START';
+//twiter投稿
+//   final String text;
+//   final String url;
+//   final List<String> hashtags;
+//   final String via;
+//   final String related;
+//    TwitterShareWidget(
+//       {required Key key,
+//         required this.text,
+//         this.url = "",
+//         this.hashtags = const [],
+//         this.via = "",
+//         this.related = ""})
+//       : super(Key?: key);
 
+  void _tweet() async {
+    final Map<String, dynamic> tweetQuery = {
+      "text": "#test",
+      "url": "http:test.com",
+      "hashtags": "早起き",
+      "via": "",
+      "related": "",
+    };
+
+    final Uri tweetScheme =
+    Uri(scheme: "twitter", host: "post", queryParameters: tweetQuery);
+
+    final Uri tweetIntentUrl =
+    Uri.https("twitter.com", "/intent/tweet", tweetQuery);
+
+    await canLaunch(tweetScheme.toString())
+        ? await launch(tweetScheme.toString())
+        : await launch(tweetIntentUrl.toString());
+  }
   //現在日付
   final TextStyle styleA = const TextStyle(fontSize: 28.0, color: Colors.white,);
   final TextStyle styleB = const TextStyle(fontSize: 15.0, color: Colors.white);
@@ -544,7 +576,18 @@ class _FirstScreenState extends State<FirstScreen> {
                 child: Text( strStarstop, style: const TextStyle(fontSize: 35.0, color: Colors.white,),),
               ),
             ),
+           //twitter投稿
+            FloatingActionButton(
+              child: const Icon(MdiIcons.twitter),
+              backgroundColor: Colors.lightBlueAccent,
+              onPressed: () {
+                _tweet();
+                },
+            )
           ],
+
+
+
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(

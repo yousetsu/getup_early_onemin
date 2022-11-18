@@ -28,6 +28,7 @@
 "date": "DATE",
 "targettm": "TARGET TIME",
 "home": "Home",
-"history": "History"
-
+"history": "History",
+"successful": "successful!",
+"faildto": "Failed to"
 }

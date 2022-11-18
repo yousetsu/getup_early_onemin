@@ -58,6 +58,8 @@ String? selectedNotificationPayload;
 bool flgFirstRun = true;
 RewardedAd? _rewardedAd;
 int _numRewardedLoadAttempts = 0;
+String? strNowGetupTime;
+String? strStatusNm;
 //-------------------------------------------------------------
 //   DB処理
 //-------------------------------------------------------------
@@ -105,6 +107,23 @@ Future<int?> _loadIntSetting(String field) async{
     intValue = item[field];
   }
   return intValue;
+}
+Future<void> _loadNowGetuptimeStatus(BuildContext context) async{
+  DateTime date_Getuptime;
+  String dbPath = await getDatabasesPath();
+  String path = p.join(dbPath, 'rireki.db');
+  Database database = await openDatabase(path, version: 1);
+  List<Map> result = await database.rawQuery("SELECT getupstatus , goalgetuptime From rireki order by id desc limit 1");
+  for (Map item in result) {
+    date_Getuptime = DateTime.parse(item['goalgetuptime'].toString());
+    strNowGetupTime = DateFormat.Hm().format(date_Getuptime);
+    if(item['getupstatus'] == 0){
+      strStatusNm = AppLocalizations.of(context)!.successful;
+    }else{
+      strStatusNm = AppLocalizations.of(context)!.faildto;
+    }
+  }
+
 }
 /*------------------------------------------------------------------
 起動
@@ -262,26 +281,22 @@ class _FirstScreenState extends State<FirstScreen> {
   bool alarmFlg = false;
   MaterialColor primaryColor = Colors.orange;
   String strStarstop = 'START';
-//twiter投稿
-//   final String text;
-//   final String url;
-//   final List<String> hashtags;
-//   final String via;
-//   final String related;
-//    TwitterShareWidget(
-//       {required Key key,
-//         required this.text,
-//         this.url = "",
-//         this.hashtags = const [],
-//         this.via = "",
-//         this.related = ""})
-//       : super(Key?: key);
 
+//twitter投稿
   void _tweet() async {
+    await _loadNowGetuptimeStatus(context);
+    String? strTwitterText;
+    Locale locale = Localizations.localeOf(context);
+    if(locale.languageCode == 'ja'){
+      strTwitterText = '#毎日$intMinKankaku分ずつ早起\n[目標]${DateFormat.Hm().format(_goalgetuptime)}\n$strNowGetupTime起床$strStatusNm\n明日は${DateFormat.Hm().format(_getuptime)}に起きる！';
+    }else{
+      strTwitterText = 'Wake up $intMinKankaku minute earlier every day \n[goal]${DateFormat.Hm().format(_goalgetuptime)}\n$strNowGetupTime get up.\nwake up at ${DateFormat.Hm().format(_getuptime)} tomorrow';
+    }
+
     final Map<String, dynamic> tweetQuery = {
-      "text": "#test",
-      "url": "http:test.com",
-      "hashtags": "早起き",
+      "text": strTwitterText,
+      "url": "",
+      "hashtags": "",
       "via": "",
       "related": "",
     };
@@ -300,6 +315,7 @@ class _FirstScreenState extends State<FirstScreen> {
   final TextStyle styleA = const TextStyle(fontSize: 28.0, color: Colors.white,);
   final TextStyle styleB = const TextStyle(fontSize: 15.0, color: Colors.white);
   @override
+  @pragma('vm:entry-point')
   void initState() {
    // _getuptime = DateTime.now();
     super.initState();
@@ -567,23 +583,28 @@ class _FirstScreenState extends State<FirstScreen> {
             Text(DateFormat.Hm().format(goalBedinTime), style: const TextStyle(fontSize: 35.0, color: Colors.white)),
             const Padding(padding: EdgeInsets.all(5.0),),
             const Divider(color: Colors.white, thickness: 1.0,),
-            //開始ボタン
-            SizedBox(
-              width: 200, height: 70,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: primaryColor, shape: const StadiumBorder(), elevation: 16,),
-                onPressed: buttonPressed,
-                child: Text( strStarstop, style: const TextStyle(fontSize: 35.0, color: Colors.white,),),
+
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  //開始ボタン
+              SizedBox(
+                width: 200, height: 70,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: primaryColor, shape: const StadiumBorder(), elevation: 16,),
+                  onPressed: buttonPressed,
+                  child: Text( strStarstop, style: const TextStyle(fontSize: 35.0, color: Colors.white,),),
+                ),
               ),
-            ),
-           //twitter投稿
-            FloatingActionButton(
-              child: const Icon(MdiIcons.twitter),
-              backgroundColor: Colors.lightBlueAccent,
-              onPressed: () {
-                _tweet();
-                },
-            )
+              //twitter投稿
+              FloatingActionButton(
+                backgroundColor: Colors.lightBlueAccent,
+                onPressed: () {
+                  _tweet();
+                  },
+                child: const Icon(MdiIcons.twitter),
+              ),
+            ]),
           ],
 
 

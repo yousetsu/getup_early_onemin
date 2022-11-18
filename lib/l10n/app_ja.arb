@@ -28,7 +28,8 @@
 "date": "日付",
 "targettm": "目標時間",
 "home": "ホーム",
-"history": "実績"
-
+"history": "実績",
+"successful": "成功!",
+"faildto": "失敗."
 
 }

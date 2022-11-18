@@ -587,6 +587,8 @@ class _FirstScreenState extends State<FirstScreen> {
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
+                  //空のボックス
+                  SizedBox(width: 70, height: 70,),
                   //開始ボタン
               SizedBox(
                 width: 200, height: 70,
@@ -597,18 +599,18 @@ class _FirstScreenState extends State<FirstScreen> {
                 ),
               ),
               //twitter投稿
-              FloatingActionButton(
-                backgroundColor: Colors.lightBlueAccent,
-                onPressed: () {
-                  _tweet();
-                  },
-                child: const Icon(MdiIcons.twitter),
-              ),
-            ]),
+                  SizedBox(
+                    width: 70, height: 70,
+                    child: FloatingActionButton(
+                      backgroundColor: Colors.lightBlueAccent,
+                      onPressed: () {
+                        _tweet();
+                        },
+                      child: const Icon(MdiIcons.twitter),
+                    ),
+                  ),
+                ]),
           ],
-
-
-
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(

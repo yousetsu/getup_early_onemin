@@ -108,14 +108,14 @@ Future<int?> _loadIntSetting(String field) async{
   return intValue;
 }
 Future<void> _loadNowGetuptimeStatus(BuildContext context) async{
-  DateTime date_Getuptime;
+  DateTime dateGetuptime;
   String dbPath = await getDatabasesPath();
   String path = p.join(dbPath, 'rireki.db');
   Database database = await openDatabase(path, version: 1);
   List<Map> result = await database.rawQuery("SELECT getupstatus , goalgetuptime From rireki order by id desc limit 1");
   for (Map item in result) {
-    date_Getuptime = DateTime.parse(item['goalgetuptime'].toString());
-    strNowGetupTime = DateFormat.Hm().format(date_Getuptime);
+    dateGetuptime = DateTime.parse(item['goalgetuptime'].toString());
+    strNowGetupTime = DateFormat.Hm().format(dateGetuptime);
     if(item['getupstatus'] == 0){
       strStatusNm = AppLocalizations.of(context)!.successful;
     }else{
@@ -585,7 +585,7 @@ class _FirstScreenState extends State<FirstScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   //空のボックス
-                  SizedBox(width: 70, height: 70,),
+                  const SizedBox(width: 70, height: 70,),
                   //開始ボタン
               SizedBox(
                 width: 200, height: 70,
@@ -1040,7 +1040,7 @@ class _SecondScreenState extends State<SecondScreen> {
     //広告再生
     _showRewardedAdMusic();
     //ファイル選択
-    FilePickerResult? result = null;
+    FilePickerResult? result;
     result = await FilePicker.platform.pickFiles(
         dialogTitle: 'Please Play Music File', type: FileType.audio
     );

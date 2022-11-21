@@ -19,7 +19,6 @@ import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:audio_session/audio_session.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'const/const.dart';
@@ -339,8 +338,6 @@ class _FirstScreenState extends State<FirstScreen> {
     String? strSePath;
     strSePath = await _loadStrSetting('mpath');
     _player = AudioPlayer();
-    final session = await AudioSession.instance;
-    await session.configure(const AudioSessionConfiguration.music());
     await _player.setLoopMode(LoopMode.all);
     if(strSePath != null && strSePath != "") {
       await _player.setFilePath(strSePath);

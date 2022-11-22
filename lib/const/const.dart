@@ -1,4 +1,4 @@
-const int helloAlarmID = 19820822;
+const int helloAlarmID = 19850216;
 const String cnsGetupStatusS = '1';
 const String cnsGetupStatusF = '0';
 const bool cnsAlarmOn = true;

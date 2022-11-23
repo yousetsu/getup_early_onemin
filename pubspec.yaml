@@ -3,7 +3,7 @@ description: getup_early_onemin
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.8+9
+version: 1.0.9+10
 
 environment:
   sdk: ">=2.17.6 <3.0.0"

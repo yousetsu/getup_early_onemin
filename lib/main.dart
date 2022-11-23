@@ -116,7 +116,7 @@ Future<void> _loadNowGetuptimeStatus(BuildContext context) async{
   for (Map item in result) {
     dateGetuptime = DateTime.parse(item['goalgetuptime'].toString());
     strNowGetupTime = DateFormat.Hm().format(dateGetuptime);
-    if(item['getupstatus'] == 0){
+    if(item['getupstatus'].toString() == cnsGetupStatusS){
       strStatusNm = AppLocalizations.of(context)!.successful;
     }else{
       strStatusNm = AppLocalizations.of(context)!.faildto;
